@@ -45,13 +45,14 @@
 #include <iostream>
 #include <iomanip>
 using namespace std;
+
 int main()
 {
-    int m(0), a(0), number[50] = {0}, out_number[50] = {0}, *pnum = out_number; 
-    float critical_value[50] = {0.0},  out_value[50] = {0.0}, *pvalue = out_value;
-    
+    int m(0), number[50] = {0}, out_number[50] = {0}, *pnum = out_number, out_qty(0);
+    double a(0), critical_value[50], out_value[50], *pvalue = out_value;
+
     cin >> m >> a;
-    for (int i(0); i < m; ++i)
+    for (int i(0); i < m; ++i) // 先筛选出症状严重的患者
     {
         cin >> number[i] >> critical_value[i];
         if (critical_value[i] >= a)
@@ -60,24 +61,31 @@ int main()
             ++pnum;
             *pvalue = critical_value[i];
             ++pvalue;
+            ++out_qty;
         }
     }
-
-    for (int i(0); i < sizeof(out_number) - 1; ++i)
-        for (int j(0); j < sizeof(out_number) - 1 - i; ++j)
-        {
-            if (out_number[j] < out_number[j + 1])
+    // cout << GetArrLength(out_number) << ' ' << GetArrLength(out_value) << ' '  << GetArrLength(number) << ' '  << GetArrLength(critical_value) << endl;
+    if (out_qty == 0) // 如果没有严重患者就输出没有
+        cout << "None." << endl;
+    else
+    {
+        for (int i(0); i < out_qty - 1; ++i) // 冒泡排序所有病人，重症优先
+            for (int j(0); j < out_qty - 1 - i; ++j)
             {
-                int temp = out_number[j];
-                out_number[j] = out_number[j + 1];
-                out_number[j + 1] = temp;
-                int temp1 = out_value[j];
-                out_value[j] = out_value[j + 1];
-                out_value[j + 1] = temp1;
+                if (out_value[j] < out_value[j + 1])
+                {
+                    int temp = out_number[j];
+                    out_number[j] = out_number[j + 1];
+                    out_number[j + 1] = temp;
+                    double temp1 = out_value[j];
+                    out_value[j] = out_value[j + 1];
+                    out_value[j + 1] = temp1;
+                }
             }
-        }
-    for (int i(0); i < sizeof(out_number); ++i)
-        cout << out_number[i] << out_number << endl;
+
+        for (int i(0); i < out_qty; ++i) // 输出所有病例编号和危急值
+            cout << setw(3) << setfill('0') << out_number[i] << ' ' << fixed << setprecision(1) << out_value[i] << endl;
+    }
 
     return 0;
 }
