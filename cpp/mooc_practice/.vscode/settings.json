@@ -75,5 +75,6 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "locale": "cpp"
-    }
+    },
+    "C_Cpp.clang_format_fallbackStyle": "Google"
 }
