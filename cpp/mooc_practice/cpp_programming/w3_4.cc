@@ -63,6 +63,7 @@ Case:1
 #include <iostream>
 #include <string>
 using namespace std;
+// *************类定义**************
 class Camp {
  public:
   string camp_name_;  // 司令部名字
@@ -70,87 +71,101 @@ class Camp {
       qty_[5],        // 记录每种武士的数量
       camp_str_;      // 记录司令部总共多少生命
 
-  string type_in_order_[5];  // 两个阵营按顺序记录的出兵名称
-  int str_in_order_[5],      // 两个阵营按顺序记录的武士的生命值
-      atk_in_order_[5],      // 两个阵营按顺序记录的武士的攻击力
-      index_;                // 当前的出兵位置
+  string *type_in_order_ = new string[5];  // 两个阵营按顺序记录的出兵名称
+  int str_in_order_[5],  // 两个阵营按顺序记录的武士的生命值
+      atk_in_order_[5],  // 两个阵营按顺序记录的武士的攻击力
+      index_;            // 当前的出兵位置
 
   static int min_str_,  // 记录最少需要消耗生命的量
       time;             // 武士出兵时间
+
+  // 构造函数声明
   Camp(const string camp_name, const int &camp_str, const int *str_per,
-       const string *type, const int *seq);  // 构造函数声明
-  int BuildWarriors();                       // 给当前阵营制造武士
+       string *type, const int *seq);
+  int BuildWarriors();  // 给当前阵营制造武士
 };
 // *************构造函数定义**********
 Camp::Camp(const string camp_name, const int &camp_str, const int *str_per,
-           const string *type, const int *seq)
+           string *type, const int *seq)
     : camp_name_(camp_name),
-      number_(1),  // 编号从1开始
+      number_(0),
       qty_{0},
       camp_str_(camp_str),
-      type_in_order_{0},
+      type_in_order_(type),
       str_in_order_{0},
       atk_in_order_{0},
       index_(0) {
   time = 0;             // 两军共用一个时间
   min_str_ = camp_str;  // 最小值先设定一个较高的数
+
   for (int i(0); i < 5; ++i) {
-    type_in_order_[seq[i]] = type[i];
-    str_in_order_[seq[i]] = str_per[i];
-    if (str_in_order_[seq[i]] < min_str_) min_str_ = str_in_order_[seq[i]];
+    type_in_order_[i] = type[seq[i]];
+    str_in_order_[i] = str_per[seq[i]];
+    if (str_in_order_[i] < min_str_) min_str_ = str_in_order_[i];
   }
 }
-// **************主函数***************
+// **************主函数**************
+int Camp::time = 0, Camp::min_str_ = 0;
+// 对于静态成员变量，必须在定义该类的文件中进行一次声明或初始化，否则编译能通过，链接无法通过！！！
+// int Camp::time = 0, Camp::min_str_ = 0;
 int main() {
   int n(0), camp_str(0), str_per[5]{0};
-  const string type[5]{"dragon", "ninja", "iceman", "lion", "wolf"};  //武士类型
+  string type[5] = {"dragon", "ninja", "iceman", "lion", "wolf"};  //武士类型
   const int red_seq[5]{2, 3, 4, 1, 0},  // 红方武士制造序列
       blue_seq[5]{3, 0, 1, 2, 4};       // 蓝方武士制造序列
 
   cin >> n;  // 输入测试组数
   do {       // 本组测试完之前 do-while循环
-    cout << "Case:" << n << endl;
     // 输入各组数据
     cin >> camp_str;
     for (int i(0); i < 5; ++i) {
       cin >> str_per[i];
     }
+    cout << "Case:" << n << endl;
     // 初始化两个阵营
     Camp red("red", camp_str, str_per, type, red_seq);
     Camp blue("blue", camp_str, str_per, type, blue_seq);
 
     // 分别制造武士
     int r_end(0), b_end(0);
-    while (r_end != 0 && b_end != 0) {
-      ++Camp::time;
+    while (r_end == 0 || b_end == 0) {
       r_end = red.BuildWarriors();
       b_end = blue.BuildWarriors();
+      ++Camp::time;  // time是从000开始的，所以先在000生产，然后再+1
     }
 
   } while (--n > 0);
 
   return 0;
 }
-//
+// ********生产武士函数*************
 int Camp::BuildWarriors() {
   if (camp_str_ < min_str_) {  // 2) 司令部停止制造武士
     cout << setw(3) << setfill('0') << time << ' ' << camp_name_
          << "headquarter stops making warriors" << endl;
     return 2;  // 返回2，表示当前这个阵营出兵完毕
-  } else {     // 1) 武士降生
-    if (camp_str_ < str_in_order_[index_]) { // 如果现有阵营生命值小于当前生产序列所需生命值
-      if (index_ != 4) // 如果不是最后一个武士，就试图制造下一个
+  } else {
+    // 如果现有阵营生命值小于当前生产序列武士所需生命值，进入循环直到寻找到能生产的武士
+    while (camp_str_ < str_in_order_[index_]) {
+      if (index_ != 4)  // 如果不是最后一种武士，就试图制造下一种
         index_++;
       else
-        index_ = 0; // 如果时最后一个武士，就回到第一个武士
-    } else {
-      number_++;
-      camp_str_ -= str_in_order_[index_];
-      cout << setw(3) << setfill('0') << time << ' ' << camp_name_ << ' '
-           << type_in_order_ << ' ' << number_ << " born with strength "
-           << str_in_order_ << ',' << qty_ << ' ' << type_in_order_ << " in "
-           << camp_name_ << " headquarter" << endl;
-      return 0; // 返回0 继续循环
+        index_ = 0;  // 如果是最后一种武士，就回到第一种武士
     }
+    ++number_;  // 序号初始化为0，每生产一个+1，生产第一个就是1号
+    camp_str_ -= str_in_order_[index_];  // 阵营生命值 - 生产消耗
+    ++qty_[index_];                      // 当前种类的武士数量+1
+    // 输出
+    for (int i(0); i < 5; ++i)
+    cout << type_in_order_[index_] << endl;
+    cout << endl;
+    
+    cout << setw(3) << setfill('0') << time << ' ' << camp_name_ << ' '
+         << type_in_order_[index_] << ' ' << number_ << " born with strength "
+         << str_in_order_[index_] << ',' << qty_[index_] << ' '
+         << type_in_order_[index_] << " in " << camp_name_ << " headquarter"
+         << endl;
+    ++index_;  // 制造下一种武士
+    return 0;  // 返回0 继续循环
   }
 }

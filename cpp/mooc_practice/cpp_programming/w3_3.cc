@@ -32,26 +32,32 @@ int main()  {
     Big ________________{ }
 */
 
-
 #include <iostream>
 using namespace std;
 class Base {
 public:
-    int k;
-    Base(int n):k(n) { }
+  int k;
+  Base(int n) : k(n) {}
 };
-class Big  {
+class Big {
 public:
-    int v; Base b;
-// 在此处补充你的代码
-    // 由于只用一个参数(int)5就初始化了Big类,可能性1：构造函数中成员变量b有缺省值5，所以可以省略；可能性2：定义了只有一个变量的构造函数 ps:只能选一个使用，因为两个一起会造成函数重载的二义性！！！
-    // Big (int n, Base c = 5): v(n), b(c) { } // 可能性1：如果是缺省参数, 而且后面a2还调用了一个复制构造函数
-    Big (int n): v(n), b(n) {} // 可能性2：只有一个参数的构造函数，同时顺便用列表初始化把b初始化为n就可以（因为成员函数b的构造函数先于封闭类的构造函数运行，已经执行过了）
-    // Big (const Big &c): v(c.v), b(c.b) {} // 理论上需要再定义一个复制构造函数，但实际上这一行可以不写
+  int v;
+  Base b;
+  // 在此处补充你的代码
+  // 由于只用一个参数(int)5就初始化了Big类,可能性1：构造函数中成员变量b有缺省值5，所以可以省略；可能性2：定义了只有一个变量的构造函数
+  // ps:只能选一个使用，因为两个一起会造成函数重载的二义性！！！ Big (int n,
+  // Base c = 5): v(n), b(c) { } // 可能性1：如果是缺省参数,
+  // 而且后面a2还调用了一个复制构造函数
+  Big(int n)
+      : v(n), b(n) {
+  } // 可能性2：只有一个参数的构造函数，同时顺便用列表初始化把b初始化为n就可以（因为成员函数b的构造函数先于封闭类的构造函数运行，已经执行过了）
+    // Big (const Big &c): v(c.v), b(c.b) {} //
+  // 理论上需要再定义一个复制构造函数，但实际上这一行可以不写
 };
-int main()  {
-    Big a1(5);    Big a2 = a1;
-    cout << a1.v << "," << a1.b.k << endl;
-    cout << a2.v << "," << a2.b.k << endl;
-    return 0;
+int main() {
+  Big a1(5);
+  Big a2 = a1;
+  cout << a1.v << "," << a1.b.k << endl;
+  cout << a2.v << "," << a2.b.k << endl;
+  return 0;
 }
