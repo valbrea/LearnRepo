@@ -76,5 +76,6 @@
         "variant": "cpp",
         "locale": "cpp"
     },
-    "C_Cpp.clang_format_fallbackStyle": "Google"
+    "C_Cpp.clang_format_fallbackStyle": "LLVM",
+    "C_Cpp.default.cppStandard": "c++20"
 }
