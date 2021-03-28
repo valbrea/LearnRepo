@@ -74,8 +74,11 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "__locale": "cpp"
     },
     "C_Cpp.clang_format_fallbackStyle": "LLVM",
-    "C_Cpp.default.cppStandard": "c++20"
+    "C_Cpp.default.cppStandard": "c++20",
+    "C_Cpp.default.cStandard": "c17",
+    "editor.fontFamily": "CaskaydiaCove Nerd Font, Consolas, Menlo, Monaco, 'Courier New', monospace"
 }
