@@ -61,7 +61,7 @@ public:
   // 从而导致a的值被修改，导致后续错误！！
   friend BigInt operator+(const BigInt &a, const BigInt &b);
   friend BigInt operator-(const BigInt &a, const BigInt &b);
-  // friend BigInt operator*(const BigInt &a, const BigInt &b);
+  friend BigInt operator*(const BigInt &a, const BigInt &b);
   // friend BigInt operator/(const BigInt &a, const BigInt &b);
   /**************************************************************************************/
 };
@@ -84,9 +84,9 @@ int main() {
   case '-':
     big_c = big_a - big_b;
     break;
-  // case '*':
-  //   big_c = big_a * big_b;
-  //   break;
+  case '*':
+    big_c = big_a * big_b;
+    break;
   // case '/':
   //   big_c = big_a / big_b;
   //   break;
@@ -282,44 +282,38 @@ BigInt operator-(const BigInt &a, const BigInt &b) {
         << "\'-\' error"; // 如果最后还要借位，肯定就出错了，因为已经判断过大小了
   return BigInt(ptr_c, digit_c, negative_c);
 }
-// BigInt operator*(const BigInt &a, const BigInt &b) {
-//   int msb; // 记录a的最高有效位
-//   // 如果a有x位，b有y位，乘完后最多有(x+1) + (y+1) - 1 == x + y + 1位；
-//   // 所以a要扩展到这么多位
-//   int *ptr_a = new int[digit_ + b.digit_ + 1];
-//   // 顺序排放，0是低位，digit_ - 1是高位
-//   // 先把低位复制，高位放'0'
-//   for (int i(0); i < digit_; ++i)
-//     ptr_a[i] = ptr_[i];
-//   for (int i(digit_); i < digit_ + b.digit_ + 1; ++i)
-//     ptr_a[i] = 0;
-//   msb = digit_;
-//   digit_ += b.digit_ + 1;
-//   delete[] ptr_;
-//   ptr_ = ptr_a;
-//   ptr_a = nullptr;
+BigInt operator*(const BigInt &a, const BigInt &b) {
+  // 如果a有x位，b有y位，乘完后最多有(x+1) + (y+1) - 1 == x + y + 1位；
+  // 所以a要扩展到这么多位
+  int digit_c = a.digit_ + b.digit_ + 1;
+  int *ptr_c;
+  BigInt tmp_a, tmp_b;
+  tmp_a = Extend(digit_c, a);
+  tmp_b = Extend(digit_c, b);
+  // 顺序排放，0是低位，digit_c - 1是高位
+  // 先把低位复制，高位放'0'
 
-//   int carry(0); // 进位，最低位是0
-//   // a与b的每一位相乘，然后把所有和按照位数相加
-//   for (int j(0); j < b.digit_; ++j) { // b的每一位都要和a相乘
-//     for (int i(0); i < msb; ++i) {    // 每一轮加到a的最高有效位
-//       // 要像手算一样，a和b到第j位相乘，就要记录到从第j位开始到到位置
-//       ptr_[i + j] +=
-//           ptr_[i] * b.ptr_[j] + carry; // 这里要用+=，因为每一轮都会加
-//       if (ptr_[i + j] > 9) {           // 如果数字出现进位
-//         carry = ptr_[i + j] / 10;      // 记录进位
-//         ptr_[i + j] -= 10 * carry;     // 删掉高位
-//       } else {
-//         carry = 0;
-//       }
-//     }
-//     if (carry != 0) { // 如果a的最高有效位还有进位
-//       ptr_[msb + 1 + j] = carry;
-//     }
-//     carry = 0; // 每算完一轮，carry都要回0
-//   }
-//   return *this;
-// }
+  int carry(0); // 进位，最低位是0
+  // a与b的每一位相乘，然后把所有和按照位数相加
+  for (int j(0); j < b.digit_; ++j) { // b的每一位都要和a相乘
+    for (int i(0); i < a.digit_; ++i) {    // 每一轮加到a的最高有效位
+      // 要像手算一样，a和b的第j位相乘，就要记录到从第j位开始到到位置
+      ptr_[i + j] +=
+          ptr_[i] * b.ptr_[j] + carry; // 这里要用+=，因为每一轮都会加
+      if (ptr_[i + j] > 9) {           // 如果数字出现进位
+        carry = ptr_[i + j] / 10;      // 记录进位
+        ptr_[i + j] -= 10 * carry;     // 删掉高位
+      } else {
+        carry = 0;
+      }
+    }
+    if (carry != 0) { // 如果a的最高有效位还有进位
+      ptr_[msb + 1 + j] = carry;
+    }
+    carry = 0; // 每算完一轮，carry都要回0
+  }
+  return *this;
+}
 // BigInt operator/(const BigInt &a, const BigInt &b) {
 // 除法是从最高位往最低位计算
 //   int msb;                 // 记录a的最高有效位
