@@ -55,7 +55,7 @@ public:
   // 就默认里面是个空串位补'0'，同样也不需要使用a.ExtendFromLow()这种形式，所以也是友元而非成员函数
   /**************************************************************************************/
   friend BigInt ExtendFromHigh(const int &digit, const BigInt &s);
-  // 同样用来扩展某个对象的空间至digit位，不过是从最高位开始和对象s相同，低位全部补'0'，主要用于高级的除法（暂时没用）
+  // 同样用来扩展某个对象的空间至digit位，不过是从最高位开始和对象s相同，低位全部补'0'，主要用于除法
   /**************************************************************************************/
   // 加减乘除的返回值不要加&，因为重载运算符函数中会返回构造函数生成的局部对象，
   // 如果加了引用&，返回的是该临时对象的地址，在函数结束后就会找不到该对象
@@ -338,8 +338,8 @@ BigInt operator*(const BigInt &a, const BigInt &b) {
   return BigInt(ptr_c, digit_c);
 }
 BigInt operator/(const BigInt &a, const BigInt &b) {
-  // 除法最简单的思路，直接计算减法的次数。
-  // 还有一种高级思路需要利用到ExtendFromHigh()，详见https://blog.csdn.net/ysz171360154/article/details/88956342
+  // 除法是从最高位往最低位计算
+  // 思路见：https://blog.csdn.net/ysz171360154/article/details/88956342
   int digit_c;
   int *ptr_c;   // 存储最后结果的空间，输出
   int negative_c = -Compare(a, b); // a > b, c就是个正数，negative_c < 0
@@ -358,18 +358,34 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     return BigInt(ptr_c, digit_c, negative_c);
   } else {
     // 当 a>b时，c的位数肯定小于等于a
-    BigInt dividend, divisor; // 被除数 除数
-    int quotient = 0; // 商
+    BigInt dividend, divisor, remainder; // 被除数 除数 余数
+    int quotient; // 商
     digit_c = a.digit_;
     ptr_c = new int[digit_c];
     dividend = a;
-    divisor = ExtendFromLow(a.digit_, b); // 除数从低位往高位扩展
+    divisor = ExtendFromHigh(a.digit_, b); // 除数从高位往低位扩展
     do
     {
-      dividend = dividend - divisor; // 做多次减法
-      ++quotient; 
-    } while (Compare(dividend, divisor) >= 0); // 直到余数小于除数
-    
-    return BigInt(to_string(quotient));
+      remainder = dividend - divisor; // 做多次减法
+      quotient += ; 
+    } while (Compare(remainder, divisor) >= 0); // 直到余数小于除数
+    int pos_low, pos_high; // 用来查找商中0的位置
+   for (int i(0); i < a.digit_; ++i) {
+    //  从低位到高位开始找不为0的数字
+    if (remainder.ptr_[i] != 0) {
+      pos_low = i;
+      break;
+    }
+   }
+   for (int i(a.digit_ - 1); i >= 0; --i) {
+    //  从高到低找不为0的数字
+    if (remainder.ptr_[i] != 0) {
+      pos_high = i;
+      break;
+    }
+   }
+   if (pos_low == pos_high) {
+     // 从高到低找不为0的数字
+   }    
 }
 }
