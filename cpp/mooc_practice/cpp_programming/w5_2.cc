@@ -165,12 +165,12 @@ class Weapon;
 class Camp {
 private:
   string camp_name_;                // 司令部名字
-  int worrior_number_,              // 记录武士生产编号
-      qty_[5];                      // 记录每种武士的数量
+  int qty_[5];                      // 记录每种武士的数量
   string worrior_type_in_order_[5]; // 两个阵营按顺序记录的出兵名称
 
 protected:
-  int camp_strength_,        // 当前阵营的生命值
+  int worrior_number_,       // 记录武士生产编号
+      camp_strength_,        // 当前阵营的生命值
       strength_in_order_[5], // 两个阵营按顺序记录的武士的生命值
       atk_in_order_[5],      // 两个阵营按顺序记录的武士的攻击力
       index_;                // 当前的出兵位置
@@ -184,56 +184,18 @@ public:
       blue_seq_[5];                     // 蓝方武士制造序列
   static const string worrior_type_[5]; //武士类型
   // 构造函数声明
-  Camp(const string camp_name);
-  int BuildWarriors(); // 给当前阵营制造武士
-  friend class Weapon;
-};
-// ******************武器类*************************
-class Weapon {
-  // 有的武士可以拥有武器。武器有三种，sword, bomb,和arrow，编号分别为0,1,2。
-  int weapon_number_;
-
-public:
-  Weapon(const int &weapon_number) {}
-};
-// ******************继承函数*************************
-class Dragon : public Camp {
-  // dragon 可以拥有一件武器。编号为n的dragon降生时即获得编号为n%3的武器。
-  // dragon还有“士气”这个属性，是个浮点数，其值为它降生后其司令部剩余生命元的数量除以造dragon所需的生命元数量。
-  Weapon *dragon_weapon_;
-  double morale_; // 士气
-public:
-  friend class Weapon;
-  Dragon(const string camp_name)
-      : Camp(camp_name), dragon_weapon_(worrior_number_ % 3), morale_() {
-    morale_ = (double)camp_strength_ / strength_in_order_[index_];
-  }
-};
-class Ninja : public Camp {
-  // ninja可以拥有两件武器。编号为n的ninja降生时即获得编号为 n%3 和
-  // (n+1)%3的武器。
-  Weapon *ninja_weapon_[2];
-};
-class Iceman : public Camp {
-  // iceman有一件武器。编号为n的iceman降生时即获得编号为 n%3 的武器。
-  Weapon *iceman_weapon_;
-};
-class Lion : public Camp {
-  // lion 有“忠诚度”这个属性，其值等于它降生后其司令部剩余生命元的数目。
-  int loyalty_;
-};
-class Wolf : public Camp {
-  // wolf没特点。
+  Camp(const string &camp_name);
+  int BuildWarriors();                         // 给当前阵营制造武士
+  void ShowEquipment(const Camp &camp_current); // 输出当前武士的装备信息
 };
 // *************构造函数定义**********
-Camp::Camp(const string camp_name)
+Camp::Camp(const string &camp_name)
     // 注意：数组在构造函数列表初始化中不能加参数，应该在函数作用域中完成。
     // 例如：构造函数() : 数组名() {}，注意后面这个括号不能加0或其他数值
     // gnu++的标准好像允许在数组名()中间加东西，但是c++标准好像不行
-    : camp_name_(camp_name), worrior_number_(0), qty_(),
-      worrior_type_in_order_(), camp_strength_(camp_strength_per_),
+    : camp_name_(camp_name), qty_(), worrior_type_in_order_(),
+      worrior_number_(0), camp_strength_(camp_strength_per_),
       strength_in_order_(), atk_in_order_(), index_(0) {
-  time_ = 0; // 两军共用一个时间
   const int *seq;
   if (camp_name == "red") {
     seq = red_seq_;
@@ -250,6 +212,87 @@ Camp::Camp(const string camp_name)
       min_strength_ = strength_in_order_[i];
   }
 }
+// ******************武器类*************************
+class Weapon {
+  // 有的武士可以拥有武器。武器有三种，sword, bomb,和arrow，编号分别为0,1,2。
+private:
+  string *weapon_type_;
+  int weapon_number_;
+
+public:
+  Weapon(const int &weapon_number)
+      : weapon_type_(), weapon_number_(weapon_number) {
+    weapon_type_ = new string[3];
+    weapon_type_[0] = "sword";
+    weapon_type_[1] = "bomb";
+    weapon_type_[2] = "arrow";
+  }
+  string &ShowWeapon() { return weapon_type_[weapon_number_]; }
+};
+// ******************继承函数*************************
+class Dragon : public Camp {
+  // dragon 可以拥有一件武器。编号为n的dragon降生时即获得编号为n%3的武器。
+  // dragon还有“士气”这个属性，是个浮点数，其值为它降生后其司令部剩余生命元的数量除以造dragon所需的生命元数量。
+private:
+  Weapon *dragon_weapon_;
+  double morale_; // 士气
+public:
+  Dragon(const Camp &camp_current)
+      // 这里调用复制构造函数初始化，才可以获取当前阵营的所有当前信息！！！
+      : Camp(camp_current), dragon_weapon_(), morale_() {
+    // 由于worrior_number_是由复制构造函数初始化的，所以就是当前的展示数量
+    dragon_weapon_ = new Weapon(worrior_number_ % 3);
+    morale_ = (double)camp_strength_ / strength_in_order_[index_];
+  }
+  friend class Camp;
+};
+class Ninja : public Camp {
+  // ninja可以拥有两件武器。编号为n的ninja降生时即获得编号为 n%3 和
+  // (n+1)%3的武器。
+private:
+  Weapon *ninja_weapon_1_;
+  Weapon *ninja_weapon_2_;
+
+public:
+  Ninja(const Camp &camp_current)
+      // 这里调用复制构造函数初始化，才可以获取当前阵营的所有当前信息！！！
+      : Camp(camp_current), ninja_weapon_1_(), ninja_weapon_2_() {
+    ninja_weapon_1_ = new Weapon(worrior_number_ % 3);
+    ninja_weapon_2_ = new Weapon((worrior_number_ + 1) % 3);
+  }
+  friend class Camp;
+};
+class Iceman : public Camp {
+  // iceman有一件武器。编号为n的iceman降生时即获得编号为 n%3 的武器。
+private:
+  Weapon *iceman_weapon_;
+
+public:
+  // 这里调用复制构造函数初始化，才可以获取当前阵营的所有当前信息！！！
+  Iceman(const Camp &camp_current) : Camp(camp_current), iceman_weapon_() {
+    iceman_weapon_ = new Weapon(worrior_number_ % 3);
+  }
+  friend class Camp;
+};
+class Lion : public Camp {
+  // lion 有“忠诚度”这个属性，其值等于它降生后其司令部剩余生命元的数目。
+private:
+  int loyalty_;
+
+public:
+  // 这里调用复制构造函数初始化，才可以获取当前阵营的所有当前信息！！！
+  Lion(const Camp camp_current)
+      : Camp(camp_current), loyalty_(camp_strength_) {}
+  friend class Camp;
+};
+class Wolf : public Camp {
+  // wolf没特点。 这个类先放着 没用
+public:
+  // 这里调用复制构造函数初始化，才可以获取当前阵营的所有当前信息！！！
+  Wolf(const Camp &camp_current) : Camp(camp_current) {}
+  friend class Camp;
+};
+
 // **************主函数**************
 int Camp::time_ = 0, Camp::min_strength_ = 0,
     Camp::camp_strength_per_(0), Camp::strength_per_[5] = {0};
@@ -271,12 +314,12 @@ int main() {
       cin >> Camp::strength_per_[i];
     }
     cout << "Case:" << n << endl;
-    // 初始化两个阵营
+    // 初始化两个阵营xs
     Camp red("red");
     Camp blue("blue");
-
     // 分别制造武士
     int r_end(0), b_end(0);
+    Camp::time_ = 0; // 两军共用一个时间
     while (r_end == 0 || b_end == 0) {
       if (r_end == 0)
         r_end = red.BuildWarriors();
@@ -312,7 +355,30 @@ int Camp::BuildWarriors() {
          << " born with strength " << strength_in_order_[index_] << ','
          << qty_[index_] << ' ' << worrior_type_in_order_[index_] << " in "
          << camp_name_ << " headquarter" << endl;
-    ++index_; // 制造下一种武士
-    return 0; // 返回0 继续循环
+    ShowEquipment(*this); // 输出当前装备信息
+    ++index_;             // 制造下一种武士
+    return 0;             // 返回0 继续循环
+  }
+}
+void Camp::ShowEquipment(const Camp &camp_current) {
+  // 输出装备信息，不能switch string，所以只能if
+  if (camp_current.worrior_type_in_order_[camp_current.index_] == "dragon") {
+    Dragon tmp_dragon(camp_current);
+    cout << "It has a " << tmp_dragon.dragon_weapon_->ShowWeapon()
+         << ",and it's morale is " << fixed << setprecision(2)
+         << tmp_dragon.morale_ << endl;
+  }
+  if (camp_current.worrior_type_in_order_[camp_current.index_] == "ninja") {
+    Ninja tmp_ninja(camp_current);
+    cout << "It has a " << tmp_ninja.ninja_weapon_1_->ShowWeapon() << " and a "
+         << tmp_ninja.ninja_weapon_2_->ShowWeapon() << endl;
+  }
+  if (camp_current.worrior_type_in_order_[camp_current.index_] == "iceman") {
+    Iceman tmp_iceman(camp_current);
+    cout << "It has a " << tmp_iceman.iceman_weapon_->ShowWeapon() << endl;
+  }
+  if (camp_current.worrior_type_in_order_[camp_current.index_] == "lion") {
+    Lion tmp_lion(camp_current);
+    cout << "It's loyalty is " << tmp_lion.loyalty_ << endl;
   }
 }
