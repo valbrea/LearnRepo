@@ -46,89 +46,136 @@ Op29adfk48
 329strjvc
 Op29adfk48
 35a8
+
+输入分析
+3
+329strjvc
+Opadfk48
+Ifjoqwoqejr
+insert (copy (1, find(2, 1), 2), 2, 2)
+print 2
+reset(add(copy(1, find(3, 1), 3), copy(2, find(2, 2), 2)), 3)
+print 3
+insert a 3 2
+printall
+over
+
+样例输出
+Op29adfk48
+358
+329strjvc
+Op29adfk48
+35a8
 */
+#include <deque>
 #include <iostream>
 #include <string>
 using namespace std;
-string Copy(string operand);
-string Add(string operand);
-string Find(string operand);
-string Rfind(string operand);
-string Insert(string operand);
-string Reset(string operand);
-string Print(string operand);
-string Printall(string operand);
-bool AllIsNum(string str1);
+
+bool AllIsNum(string &str1);
+string CheckOperator(deque<string> &argv);
+string *str;
 int main() {
   int n(0);
   cin >> n;
   cin.ignore();
-  string *str = new string[n];
-  for (int i(1); i <= n; ++i)
-    cin >> str[i];
+  str = new string[n];
+  for (int i(0); i < n; ++i) {
+    getline(cin, str[i]);
+  }
   string command;
-  while (true) {
+  while (command.find("over") == command.npos) {
     getline(cin, command);
-    string *argv = new string[501]; // 这里需要用vector构造string的数组，每个string记录一个字符串操作，char*无法像string一样用+拼接
-
-
-
-
-    int i(0), j(0);
-    while (command[i] != '\0') {
-      if (command[i] != ' ') {
-        argv[j] += command[i]; // 如果不是' '就拼接到argv后面
-        ++i; // 继续判断下一个字符
-      }
-      else {
-        // 如果是' '就删掉前面记录完毕的操作，并开始记录下一个操作
-        command = command.substr(i + 1, (command.length() - i)); 
-        ++j;
-        i = 0; // 从截断的新串0处重新开始查找
-      }
+    string temp_op;
+    int argc(0);
+    deque<string> argv;
+    for (int begin(0), blank(0); blank != command.npos; begin = blank + 1) {
+      blank = command.find(' ', begin);
+      if (blank != command.npos) { // 如果没到末尾位置
+        argv.push_back(command.substr(begin, blank - begin));
+        begin = blank + 1; // 记录下一个命令的开始位置
+      } else               // 如果是末尾位置
+        argv.push_back(command.substr(begin, command.size() - begin));
     }
-    delete[] command;
-
-
+    CheckOperator(argv);
   }
 
   return 0;
 }
-// string Copy(string operand) {
-//   int *op_ = CutOperand(operand);
-//   int n, x, l;
-//   n = op_[0];
-//   x = op_[1];
-//   l = op_[2];
-//   return str[i].substr(x, l);
-// }
+string Copy(deque<string> &argv) {
+  int n = atoi(CheckOperator(argv).c_str());
+  int x = atoi(CheckOperator(argv).c_str());
+  int l = atoi(CheckOperator(argv).c_str());
 
-// string Add(string operand) {
-//   string S1, S2;
-//   int b = operand.find(" ");
-//   S1 = operand.substr(0, b);
-//   S2 = operand.substr(b + 1, operand.length());
-//   if (AllisNum(S1) && AllisNum(S2)) {
-//     return stoi(S1) + stoi(S2);
-//   } else {
-//     return S1 + S2;
-//   }
-// }
-// string Find(string operand);
-// string Rfind(string operand);
-// string Insert(string operand);
-// string Reset(string operand);
-// string Print(string operand);
-// string Printall(string operand);
-bool AllIsNum(string str1) {
-  bool all = false;
-  for (int i(0); i < str1.length(); ++i) {
-    if (isdigit(str1[i])) {
-      all = true;
-    } else {
-      all = false;
-      break;
-    }
+  return str[n].substr(x, l);
+}
+string Add(deque<string> &argv) {
+  string s1 = CheckOperator(argv);
+  string s2 = CheckOperator(argv);
+  if (AllIsNum(s1) && AllIsNum(s2)) {
+    int n1 = atoi(s1.c_str());
+    int n2 = atoi(s2.c_str());
+    if (0 <= n1 && n1 <= 99999 && 0 <= n2 && n2 <= 99999)
+      return to_string(n1 + n2);
+  } 
+    return (s1 + s2);
+}
+int Find(deque<string> &argv) {
+  string s = CheckOperator(argv);
+  int n = atoi(CheckOperator(argv).c_str());
+  if (str[n].find(s) != str[n].npos)
+    return str[n].find(s);
+  else
+    return str[n].size();
+}
+int Rfind(deque<string> &argv) {
+   string s = CheckOperator(argv);
+  int n = atoi(CheckOperator(argv).c_str());
+  if (str[n].rfind(s) != str[n].npos)
+    return str[n].rfind(s);
+  else
+    return str[n].size();
+}
+string Insert(deque<string> &argv) {
+  string s = CheckOperator(argv);
+  int n = atoi(CheckOperator(argv).c_str());
+  int x = atoi(CheckOperator(argv).c_str());
+  return str[n].insert(x, s);
+}
+string Reset(deque<string> &argv) {
+  
+}
+string Print(deque<string> &argv);
+string Printall(deque<string> &argv);
+bool AllIsNum(string &str1) {
+  for (int i(0); i < str1.size(); ++i) {
+    if (!isdigit(str1[i]))
+      return false;
   }
-  return all;
+  return true;
+}
+
+string CheckOperator(deque<string> &argv) {
+  string op;
+  op = argv.front();
+  argv.pop_front();
+
+  if (op == "copy")
+    Copy(argv);
+  else if (op == "add")
+    Add(argv);
+  else if (op == "find")
+    Find(argv);
+  else if (op == "rfind")
+    Rfind(argv);
+  else if (op == "insert")
+    Insert(argv);
+  else if (op == "reset")
+    Reset(argv);
+  else if (op == "print")
+    Print(argv);
+  else if (op == "printall")
+    Printall(argv);
+ 
+    return op;
 }
