@@ -58,7 +58,6 @@ string Insert(string operand);
 string Reset(string operand);
 string Print(string operand);
 string Printall(string operand);
-int *CutOperand(string operand);
 bool AllIsNum(string str1);
 int main() {
   int n(0);
@@ -70,87 +69,66 @@ int main() {
   string command;
   while (true) {
     getline(cin, command);
-    if (command == "over")
-      break;
-    int pos(0);
-    command.find(" ");
-    string operation, operand;          // 把命令分成操作和操作数
-    operation = command.substr(0, pos); // 第一个空格前是操作 (copy等)
-    operand = command.substr(pos + 1, command.length()); // 后面都算作操作数
+    string *argv = new string[501]; // 这里需要用vector构造string的数组，每个string记录一个字符串操作，char*无法像string一样用+拼接
 
-    if (operation == "copy") {
-      Copy(operand);
-    } else if (operation == "add") {
-      Add(operand);
-    } else if (operation == "find") {
-      Find(operand);
-    } else if (operation == "rfind") {
-      Rfind(operand);
-    } else if (operation == "insert") {
-      Insert(operand);
-    } else if (operation == "reset") {
-      Reset(operand);
-    } else if (operation == "print") {
-      Print(operand);
-    } else if (operation == "printall") {
-      Printall(operand);
-    } else {
-      cout << "command error!" << endl;
+
+
+
+    int i(0), j(0);
+    while (command[i] != '\0') {
+      if (command[i] != ' ') {
+        argv[j] += command[i]; // 如果不是' '就拼接到argv后面
+        ++i; // 继续判断下一个字符
+      }
+      else {
+        // 如果是' '就删掉前面记录完毕的操作，并开始记录下一个操作
+        command = command.substr(i + 1, (command.length() - i)); 
+        ++j;
+        i = 0; // 从截断的新串0处重新开始查找
+      }
     }
+    delete[] command;
+
+
   }
 
   return 0;
 }
-string Copy(string operand) {
-  int *op_ = CutOperand(operand);
-  int n, x, l;
-  n = op_[0];
-  x = op_[1];
-  l = op_[2];
-  return str[i].substr(x, l);
-}
+// string Copy(string operand) {
+//   int *op_ = CutOperand(operand);
+//   int n, x, l;
+//   n = op_[0];
+//   x = op_[1];
+//   l = op_[2];
+//   return str[i].substr(x, l);
+// }
 
-string Add(string operand) {
-    string S1, S2;
-    int b = operand.find(" ");
-    S1 = operand.substr(0, b);
-    S2 = operand.substr(b + 1, operand.length());
-    if (AllisNum(S1) && AllisNum(S2)) {
-        return stoi(S1) + stoi(S2);
-    } else {
-        return S1 + S2;
-    }
-}
-string Find(string operand);
-string Rfind(string operand);
-string Insert(string operand);
-string Reset(string operand);
-string Print(string operand);
-string Printall(string operand);
-int *CutOperand(string operand) {
-    // 把operand拆开成多个操作数字;
-    string *op_str = new string[operand.length()];
-    int *op = new int[operand.length()];
-    for (int i(0), j(0); operand[i] != '\0'; ++i) {
-      if (operand[i] != ' ')
-        op_str[j] += operand[i]; // 如果不是就记录到第j个op_str中
-      else {
-        operand.erase(i, 1); // 如果是' '就删掉第i个起的1个字符，即删掉空格
-        op[j] = stoi(op_str[j]);
-        ++j;
-      } 
-    }
-}
+// string Add(string operand) {
+//   string S1, S2;
+//   int b = operand.find(" ");
+//   S1 = operand.substr(0, b);
+//   S2 = operand.substr(b + 1, operand.length());
+//   if (AllisNum(S1) && AllisNum(S2)) {
+//     return stoi(S1) + stoi(S2);
+//   } else {
+//     return S1 + S2;
+//   }
+// }
+// string Find(string operand);
+// string Rfind(string operand);
+// string Insert(string operand);
+// string Reset(string operand);
+// string Print(string operand);
+// string Printall(string operand);
 bool AllIsNum(string str1) {
-    bool all = false;
-    for (int i(0); i < str1.length(); ++i) {
-        if (isdigit(str[i]) {
-           all = true;
-        }
-        else {
-           all = false;
-           break;
-        }
+  bool all = false;
+  for (int i(0); i < str1.length(); ++i) {
+    if (isdigit(str1[i])) {
+      all = true;
+    } else {
+      all = false;
+      break;
     }
-    return all;
+  }
+  return all;
 }
