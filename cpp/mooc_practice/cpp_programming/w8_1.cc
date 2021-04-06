@@ -1,0 +1,29 @@
+/*
+编程题＃1
+来源: POJ (Coursera声明：在POJ上完成的习题将不会计入Coursera的最后成绩。)
+
+注意： 总时间限制: 1000ms 内存限制: 65536kB
+
+描述
+下面的程序输出结果是: 
+
+1 2 6 7 8 9
+
+请填空：
+*/
+#include <iostream> 
+#include <iterator> 
+#include <set> 
+using namespace std;
+int main() { 
+    int a[] = {8,7,8,9,6,2,1}; 
+// 在此处补充你的代码
+    set<int> v;
+    set<int>::iterator i;
+    for (i = v.begin(); i != v.end(); ++i){
+        
+    }
+    ostream_iterator<int> o(cout," ");
+    copy( v.begin(),v.end(),o); 
+    return 0;
+}

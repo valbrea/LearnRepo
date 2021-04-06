@@ -70,17 +70,19 @@ Op29adfk48
 #include <deque>
 #include <iostream>
 #include <string>
+#include <cstdlib>
 using namespace std;
 
 bool AllIsNum(string &str1);
 string CheckOperator(deque<string> &argv);
 string *str;
+int str_n(0);
 int main() {
-  int n(0);
-  cin >> n;
+  cin >> str_n;
   cin.ignore();
-  str = new string[n];
-  for (int i(0); i < n; ++i) {
+  str = new string[str_n + 1];
+  for (int i(1); i <= str_n; ++i) {
+    // 这里从1开始循环，第1个字符串就是str[1]，第二个字符串就是str[2]
     getline(cin, str[i]);
   }
   string command;
@@ -117,8 +119,8 @@ string Add(deque<string> &argv) {
     int n2 = atoi(s2.c_str());
     if (0 <= n1 && n1 <= 99999 && 0 <= n2 && n2 <= 99999)
       return to_string(n1 + n2);
-  } 
-    return (s1 + s2);
+  }
+  return (s1 + s2);
 }
 int Find(deque<string> &argv) {
   string s = CheckOperator(argv);
@@ -129,24 +131,34 @@ int Find(deque<string> &argv) {
     return str[n].size();
 }
 int Rfind(deque<string> &argv) {
-   string s = CheckOperator(argv);
+  string s = CheckOperator(argv);
   int n = atoi(CheckOperator(argv).c_str());
   if (str[n].rfind(s) != str[n].npos)
     return str[n].rfind(s);
   else
     return str[n].size();
 }
-string Insert(deque<string> &argv) {
+void Insert(deque<string> &argv) {
   string s = CheckOperator(argv);
   int n = atoi(CheckOperator(argv).c_str());
   int x = atoi(CheckOperator(argv).c_str());
-  return str[n].insert(x, s);
+  str[n].insert(x, s);
 }
-string Reset(deque<string> &argv) {
-  
+void Reset(deque<string> &argv) {
+  string s = CheckOperator(argv);
+  int n = atoi(CheckOperator(argv).c_str());
+  str[n] = s;
 }
-string Print(deque<string> &argv);
-string Printall(deque<string> &argv);
+void Print(deque<string> &argv) {
+  int n = atoi(CheckOperator(argv).c_str());
+  cout << str[n] << endl;
+}
+void Printall(deque<string> &argv) {
+  // 注意这里也是从1到n而非从0到n-1
+  for (int i(1); i <= str_n; ++i) {
+    cout << str[i] << endl;
+  }
+}
 bool AllIsNum(string &str1) {
   for (int i(0); i < str1.size(); ++i) {
     if (!isdigit(str1[i]))
@@ -159,23 +171,28 @@ string CheckOperator(deque<string> &argv) {
   string op;
   op = argv.front();
   argv.pop_front();
-
-  if (op == "copy")
-    Copy(argv);
-  else if (op == "add")
-    Add(argv);
-  else if (op == "find")
-    Find(argv);
-  else if (op == "rfind")
-    Rfind(argv);
-  else if (op == "insert")
-    Insert(argv);
-  else if (op == "reset")
-    Reset(argv);
-  else if (op == "print")
-    Print(argv);
-  else if (op == "printall")
-    Printall(argv);
- 
+  if (!AllIsNum(op)) {
+    // 如果这个命令是一个字符串而非数字，则当作下一个操作进行处理
+    if (op == "copy")
+      op = Copy(argv);
+    else if (op == "add")
+      op = Add(argv);
+    else if (op == "find")
+      op = to_string(Find(argv));
+    else if (op == "rfind")
+      op = to_string(Rfind(argv));
+    else if (op == "insert")
+      Insert(argv);
+    else if (op == "reset")
+      Reset(argv);
+    else if (op == "print")
+      Print(argv);
+    else if (op == "printall")
+      Printall(argv);
+    //  没有返回值的函数，返回一个"0"字符串就行了，这些函数最后的返回值也不会被接收，所以无所谓。
     return op;
+  } else {
+    // 如果是一个数字就直接把这个数字返回
+    return op;
+  }
 }
