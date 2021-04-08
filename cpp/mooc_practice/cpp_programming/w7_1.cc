@@ -55,7 +55,7 @@ public:
     }
     delete arr_;
   }
-  // 三位数组要返回T**类型，这样后面可以使用[][]
+  // 三维数组要返回T**类型，这样后面可以使用[][]
   T **operator[](const T &ii) {
       return arr_[ii];
   }

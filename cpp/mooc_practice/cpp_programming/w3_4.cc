@@ -125,13 +125,15 @@ const string Camp::worrior_type_[5] = {"dragon", "ninja", "iceman", "lion",
 int main() {
   int n(0);
   cin >> n; // 输入测试组数
-  do {      // 本组测试完之前 do-while循环
+  cin.ignore();
+  for(int test(0); test < n; ++test) {
     // 输入各组数据
     cin >> Camp::camp_strength_per_;
     for (int i(0); i < 5; ++i) {
       cin >> Camp::strength_per_[i];
     }
-    cout << "Case:" << n << endl;
+    cin.ignore();
+    cout << "Case:" << test + 1 << endl;
     // 初始化两个阵营
     Camp red("red");
     Camp blue("blue");
@@ -145,7 +147,7 @@ int main() {
         b_end = blue.BuildWarriors();
       ++Camp::time_; // time是从000开始的，所以先在000生产，然后再+1
     }
-  } while (--n > 0);
+  }
 
   return 0;
 }
@@ -153,7 +155,7 @@ int main() {
 int Camp::BuildWarriors() {
   if (Camp::camp_strength_ < Camp::min_strength_) { // 2) 司令部停止制造武士
     cout << setw(3) << setfill('0') << Camp::time_ << ' ' << camp_name_
-         << "headquarter stops making warriors" << endl;
+         << " headquarter stops making warriors" << endl;
     return 2; // 返回2，表示当前这个阵营出兵完毕
   } else {
     // 如果现有阵营生命值小于当前生产序列武士所需生命值，进入循环直到寻找到能生产的武士

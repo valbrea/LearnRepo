@@ -69,7 +69,7 @@ Op29adfk48
 */
 #include <deque>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 using namespace std;
 
