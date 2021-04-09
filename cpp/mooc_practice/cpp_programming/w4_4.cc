@@ -31,6 +31,7 @@
 */
 #include <iostream>
 #include <string>
+#include <cmath>
 using namespace std;
 class BigInt {
   int *ptr_;
@@ -176,7 +177,6 @@ int Compare(const BigInt &a, const BigInt &b) {
   // 用来比较的函数, 如果a>b 返回1，a==b返回0，a<b返回
   // 声明为友元而不是成员函数的原因是为了在操作符重载函数（非成员函数）中使用，否则无法访问私有成员
   // 而且比较函数也不需要调用成员a,来实现a.Compare()
-  bool same = false;
   if (a.digit_ > b.digit_) {
     return 1;
   } else if (a.digit_ < b.digit_) {
@@ -359,17 +359,29 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
   } else {
     // 当 a>b时，c的位数肯定小于等于a
     BigInt dividend, divisor; // 被除数 除数
-    int quotient = 0; // 商
-    digit_c = a.digit_;
-    ptr_c = new int[digit_c];
+    long long quotient = 0LL; // 商
     dividend = a;
-    divisor = ExtendFromLow(a.digit_, b); // 除数从低位往高位扩展
-    do
-    {
-      dividend = dividend - divisor; // 做多次减法
-      ++quotient; 
-    } while (Compare(dividend, divisor) >= 0); // 直到余数小于除数
-    
+    divisor = ExtendFromHigh(dividend.digit_, b); // 除数从高位往低位扩展，低位补0
+    while (divisor.digit_ >= b.digit_) {
+      if (Compare(dividend, divisor) >= 0) {
+        // 如果除数扩展到被除数的位数之后，小于等于被除数
+        // 就减去除数一次，商 += 10^(b扩展位数),
+        // b扩展位数就是divisor的位数-b的位数
+        dividend = dividend - divisor;
+        quotient += pow(10, (divisor.digit_ - b.digit_));
+        // 检查被除数的位数，如果最高位是0就要即使缩小，避免影响Compare和减法的判断。
+        if (dividend.ptr_[dividend.digit_ - 1] == 0)
+          dividend = ExtendFromLow(dividend.digit_ -1, dividend);
+      } else { // 如果被除数 < 除数，有两种情况
+        if (divisor.digit_ >= b.digit_) {
+          // 如果除数位数比原来大，就缩小到和被除数位数-1，同样用ExtendFromHigh()函数
+          divisor = ExtendFromHigh(divisor.digit_ - 1, divisor);
+        }
+        else
+        // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
+          break;
+      }
+    }
     return BigInt(to_string(quotient));
 }
 }

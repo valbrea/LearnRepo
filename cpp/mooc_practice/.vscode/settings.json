@@ -6,6 +6,8 @@
         "cstdlib": "cpp",
         "*.tcc": "cpp",
         "iostream": "cpp",
-        "ostream": "cpp"
-    }
+        "ostream": "cpp",
+        "new": "cpp"
+    },
+    "C_Cpp.clang_format_fallbackStyle": "LLVM"
 }

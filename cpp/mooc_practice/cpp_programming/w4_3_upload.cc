@@ -6,7 +6,7 @@ private:
 public:
   Array2(const int &m = 0, const int &n = 0) : m_(m), n_(n) {
     if (m == 0 || n == 0)
-      ptr_ = nullptr;
+      ptr_ = NULL;
     else {
       ptr_ = new int *[m];
       for (int i(0); i < m; ++i)
@@ -26,10 +26,10 @@ public:
   Array2 &operator=(const Array2 &arr) {
     if (ptr_ == arr.ptr_)
       return *this;
-    if (arr.ptr_ == nullptr) {
+    if (arr.ptr_ == NULL) {
       if (ptr_)
         delete[] ptr_;
-      ptr_ = nullptr;
+      ptr_ = NULL;
       m_ = 0;
       n_ = 0;
       return *this;
@@ -48,4 +48,4 @@ public:
     n_ = arr.n_;
     return *this;
   }
-}
+};
