@@ -222,7 +222,7 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
   if (s.ptr_) {
     // 从高位digit_ext - 1开始，长度为s.digit_的数组，全部复制
     for (int i(digit_ext - 1); i >= (digit_ext - s.digit_); --i)
-      ptr_ext[i] = s.ptr_[i];
+      ptr_ext[i] = s.ptr_[i - (digit_ext - s.digit_)];
     // 剩下的置0
     for (int i(digit_ext - s.digit_ - 1); i >= 0; --i)
       ptr_ext[i] = 0;
@@ -232,6 +232,7 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
   }
   return BigInt(ptr_ext, digit_ext);
 }
+
 BigInt operator+(const BigInt &a, const BigInt &b) {
   // 由于不能直接操作const类型的对象，只能构造个新的临时a和临时b出来
   // 坚持用const是为了防止改变a和b里面的值，不能出现四则运算以后，原来的数字改变的情况
@@ -358,7 +359,8 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     return BigInt(ptr_c, digit_c, negative_c);
   } else {
     // 当 a>b时，c的位数肯定小于等于a
-    BigInt dividend, divisor; // 被除数 除数
+    BigInt dividend;          // 被除数
+    BigInt divisor;           // 除数
     long long quotient = 0LL; // 商
     dividend = a;
     divisor = ExtendFromHigh(dividend.digit_, b); // 除数从高位往低位扩展，低位补0
@@ -370,12 +372,18 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
         dividend = dividend - divisor;
         quotient += pow(10, (divisor.digit_ - b.digit_));
         // 检查被除数的位数，如果最高位是0就要即使缩小，避免影响Compare和减法的判断。
-        if (dividend.ptr_[dividend.digit_ - 1] == 0)
-          dividend = ExtendFromLow(dividend.digit_ -1, dividend);
+        int zero_count(0);
+        for(int i(dividend.digit_ - 1); i >= 0; --i) {
+            if (dividend.ptr_[i] == 0)
+            ++zero_count;
+            else
+            break;
+        }
+          dividend = BigInt(dividend.ptr_, dividend.digit_ - zero_count);
       } else { // 如果被除数 < 除数，有两种情况
         if (divisor.digit_ >= b.digit_) {
           // 如果除数位数比原来大，就缩小到和被除数位数-1，同样用ExtendFromHigh()函数
-          divisor = ExtendFromHigh(divisor.digit_ - 1, divisor);
+          divisor = BigInt(divisor.ptr_, divisor.digit_ - 1);
         }
         else
         // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
