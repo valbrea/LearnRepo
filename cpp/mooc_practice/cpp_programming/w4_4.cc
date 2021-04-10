@@ -29,9 +29,9 @@
 
 19753086420
 */
+#include <cmath>
 #include <iostream>
 #include <string>
-#include <cmath>
 using namespace std;
 class BigInt {
   int *ptr_;
@@ -57,6 +57,9 @@ public:
   /**************************************************************************************/
   friend BigInt ExtendFromHigh(const int &digit, const BigInt &s);
   // 同样用来扩展某个对象的空间至digit位，不过是从最高位开始和对象s相同，低位全部补'0'，主要用于高级的除法（暂时没用）
+  /**************************************************************************************/
+  friend BigInt Shorten(const int &digit, const BigInt &s);
+  // 删掉高位多余的0，digit < s.digit_时使用
   /**************************************************************************************/
   // 加减乘除的返回值不要加&，因为重载运算符函数中会返回构造函数生成的局部对象，
   // 如果加了引用&，返回的是该临时对象的地址，在函数结束后就会找不到该对象
@@ -232,6 +235,17 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
   }
   return BigInt(ptr_ext, digit_ext);
 }
+BigInt Shorten(const int &digit, const BigInt &s = BigInt()) {
+  // 缩短除数的位数
+  int digit_ext = digit;
+  int *ptr_ext;
+  ptr_ext = new int[digit_ext];
+  // 从高位digit_ext - 1开始，全部复制
+  for (int i(digit_ext - 1); i >= 0; --i)
+    ptr_ext[i] = s.ptr_[i - (digit_ext - s.digit_)];
+
+  return BigInt(ptr_ext, digit_ext);
+}
 
 BigInt operator+(const BigInt &a, const BigInt &b) {
   // 由于不能直接操作const类型的对象，只能构造个新的临时a和临时b出来
@@ -284,9 +298,10 @@ BigInt operator-(const BigInt &a, const BigInt &b) {
     ptr_c = new int[b.digit_];
   } else {
     // a = b
-    digit_c = 1;
-    ptr_c = new int[1];
-    ptr_c[0] = 0;
+    digit_c = a.digit_; // 这里位数要和a保持一样，为了除法里面被除数的位数不乱
+    ptr_c = new int[digit_c];
+    for (int i(0); i < digit_c; ++i)
+      ptr_c[i] = 0;
     // 返回值要包含negative，输出的时候用来判断是否输出负号或者0
     return BigInt(ptr_c, digit_c, negative_c);
   }
@@ -342,7 +357,7 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
   // 除法最简单的思路，直接计算减法的次数。
   // 还有一种高级思路需要利用到ExtendFromHigh()，详见https://blog.csdn.net/ysz171360154/article/details/88956342
   int digit_c;
-  int *ptr_c;   // 存储最后结果的空间，输出
+  int *ptr_c;                      // 存储最后结果的空间，输出
   int negative_c = -Compare(a, b); // a > b, c就是个正数，negative_c < 0
   if (negative_c > 0) {            // 如果c是负数，a/b = 0
     digit_c = 1;
@@ -359,37 +374,50 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     return BigInt(ptr_c, digit_c, negative_c);
   } else {
     // 当 a>b时，c的位数肯定小于等于a
-    BigInt dividend;          // 被除数
-    BigInt divisor;           // 除数
-    long long quotient = 0LL; // 商
+    BigInt dividend;     // 被除数
+    BigInt divisor;      // 除数
+    BigInt quotient("0");  // 商
+    int quotient_top(0); //商的最高位
     dividend = a;
-    divisor = ExtendFromHigh(dividend.digit_, b); // 除数从高位往低位扩展，低位补0
+    divisor = ExtendFromHigh(dividend.digit_, b);
+    quotient = ExtendFromHigh(dividend.digit_, quotient);
+    // 除数从高位往低位扩展，低位补0
     while (divisor.digit_ >= b.digit_) {
       if (Compare(dividend, divisor) >= 0) {
         // 如果除数扩展到被除数的位数之后，小于等于被除数
         // 就减去除数一次，商 += 10^(b扩展位数),
         // b扩展位数就是divisor的位数-b的位数
         dividend = dividend - divisor;
-        quotient += pow(10, (divisor.digit_ - b.digit_));
+        ++quotient_top;
         // 检查被除数的位数，如果最高位是0就要即使缩小，避免影响Compare和减法的判断。
-        int zero_count(0);
-        for(int i(dividend.digit_ - 1); i >= 0; --i) {
-            if (dividend.ptr_[i] == 0)
-            ++zero_count;
-            else
+        int pos;
+        for (int i(dividend.digit_ - 1); i >= 0; --i) {
+          if (dividend.ptr_[i] != 0) {
+            pos = i;
             break;
+          }
         }
-          dividend = BigInt(dividend.ptr_, dividend.digit_ - zero_count);
+        // 如果被除数的位数减小了, 就需要把商的最高位记录到BigInt的最高位里面
+        if ((pos + 1) < dividend.digit_) {
+          quotient = quotient + BigInt(to_string(quotient_top) + string(divisor.digit_ - b.digit_, '0'));
+          // dividend = Shorten(pos + 1, dividend);
+          quotient_top = 0;
+          dividend = BigInt(dividend.ptr_, pos + 1);
+        }
       } else { // 如果被除数 < 除数，有两种情况
-        if (divisor.digit_ >= b.digit_) {
+        if (divisor.digit_ > b.digit_) {
           // 如果除数位数比原来大，就缩小到和被除数位数-1，同样用ExtendFromHigh()函数
-          divisor = BigInt(divisor.ptr_, divisor.digit_ - 1);
-        }
-        else
-        // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
+          divisor = Shorten(divisor.digit_ - 1, divisor);
+        } else
+          // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
           break;
       }
     }
-    return BigInt(to_string(quotient));
+    return quotient;
+  }
 }
-}
+
+// 87894123467984512789
+// /
+// 5684
+// 15463427774100012
