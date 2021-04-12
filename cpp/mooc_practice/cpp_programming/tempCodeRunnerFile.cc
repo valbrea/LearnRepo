@@ -32,6 +32,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <cstdio>
 using namespace std;
 class BigInt {
   int *ptr_;
@@ -58,6 +59,10 @@ public:
   friend BigInt ExtendFromHigh(const int &digit, const BigInt &s);
   // 同样用来扩展某个对象的空间至digit位，不过是从最高位开始和对象s相同，低位全部补'0'，主要用于高级的除法（暂时没用）
   /**************************************************************************************/
+  friend BigInt Shorten(const int &digit, const BigInt &s);
+  // 删掉高位多余的0，digit < s.digit_时使用
+  /**************************************************************************************/
+  
   // 加减乘除的返回值不要加&，因为重载运算符函数中会返回构造函数生成的局部对象，
   // 如果加了引用&，返回的是该临时对象的地址，在函数结束后就会找不到该对象
   // 而=重构的返回值加&的原因是*this，而且需要返回的值是一个可修改的左值，否则无法连续赋值
@@ -226,7 +231,7 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
   if (s.ptr_) {
     // 从高位digit_ext - 1开始，长度为s.digit_的数组，全部复制
     for (int i(digit_ext - 1); i >= (digit_ext - s.digit_); --i)
-      ptr_ext[i] = s.ptr_[i];
+      ptr_ext[i] = s.ptr_[i - (digit_ext - s.digit_)];
     // 剩下的置0
     for (int i(digit_ext - s.digit_ - 1); i >= 0; --i)
       ptr_ext[i] = 0;
@@ -234,6 +239,17 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
     for (int i(0); i < digit_ext; ++i)
       ptr_ext[i] = 0;
   }
+  return BigInt(ptr_ext, digit_ext);
+}
+BigInt Shorten(const int &digit, const BigInt &s = BigInt()) {
+  // 缩短除数的位数
+  int digit_ext = digit;
+  int *ptr_ext;
+  ptr_ext = new int[digit_ext];
+  // 从高位digit_ext - 1开始，全部复制
+  for (int i(digit_ext - 1); i >= 0; --i)
+    ptr_ext[i] = s.ptr_[i - (digit_ext - s.digit_)];
+
   return BigInt(ptr_ext, digit_ext);
 }
 BigInt operator+(const BigInt &a, const BigInt &b) {
@@ -293,7 +309,7 @@ BigInt operator-(const BigInt &a, const BigInt &b) {
     // 返回值要包含negative，输出的时候用来判断是否输出负号或者0
     return BigInt(ptr_c, digit_c, negative_c);
   }
-  int borrow; // 减法需要借位
+  int borrow(0); // 减法需要借位
   for (int i(0); i < minuend.digit_; ++i) {
     if (minuend.ptr_[i] < subtractor.ptr_[i]) { // 如果该位需要借位
       minuend.ptr_[i] += 10;
@@ -362,20 +378,47 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     return BigInt(ptr_c, digit_c, negative_c);
   } else {
     // 当 a>b时，c的位数肯定小于等于a
-    BigInt dividend, divisor; // 被除数 除数
-    long long quotient = 0LL;         // 商
-    digit_c = a.digit_;
-    ptr_c = new int[digit_c];
+    BigInt dividend;     // 被除数
+    BigInt divisor;      // 除数
+    BigInt quotient("0");  // 商
+    int quotient_top(0); //商的最高位
     dividend = a;
-    divisor = ExtendFromLow(a.digit_, b); // 除数从低位往高位扩展
-    do {
-      dividend = dividend - divisor; // 做多次减法
-      ++quotient;
-    } while (Compare(dividend, divisor) >= 0); // 直到余数小于除数
-    char *temp = new char[dividend.digit_];
-    sprintf(temp, "%lld", quotient);
-    string str_temp(temp);
-    delete[] temp;
-    return BigInt(str_temp);
+    divisor = ExtendFromHigh(dividend.digit_, b);
+    quotient = ExtendFromHigh(dividend.digit_, quotient);
+    // 除数从高位往低位扩展，低位补0
+    while (divisor.digit_ >= b.digit_) {
+      if (Compare(dividend, divisor) >= 0) {
+        // 如果除数扩展到被除数的位数之后，小于等于被除数
+        // 就减去除数一次，商 += 10^(b扩展位数),
+        // b扩展位数就是divisor的位数-b的位数
+        dividend = dividend - divisor;
+        ++quotient_top;
+        // 检查被除数的位数，如果最高位是0就要即使缩小，避免影响Compare和减法的判断。
+        int pos(0);
+        for (int i(dividend.digit_ - 1); i >= 0; --i) {
+          if (dividend.ptr_[i] != 0) {
+            pos = i;
+            break;
+          }
+        }
+        // 如果被除数的位数减小了, 就需要把商的最高位记录到BigInt的最高位里面
+        if ((pos + 1) < dividend.digit_) {
+          char *temp_quotient = new char;
+          sprintf(temp_quotient, "%d", quotient_top);
+          quotient = quotient + BigInt(temp_quotient + string(divisor.digit_ - b.digit_, '0'));
+          // dividend = Shorten(pos + 1, dividend);
+          quotient_top = 0;
+          dividend = BigInt(dividend.ptr_, pos + 1);
+        }
+      } else { // 如果被除数 < 除数，有两种情况
+        if (divisor.digit_ > b.digit_) {
+          // 如果除数位数比原来大，就缩小到和被除数位数-1，同样用ExtendFromHigh()函数
+          divisor = Shorten(divisor.digit_ - 1, divisor);
+        } else
+          // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
+          break;
+      }
+    }
+    return quotient;
   }
 }

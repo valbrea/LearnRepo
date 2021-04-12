@@ -29,7 +29,6 @@
 
 19753086420
 */
-#include <cmath>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -305,7 +304,7 @@ BigInt operator-(const BigInt &a, const BigInt &b) {
     // 返回值要包含negative，输出的时候用来判断是否输出负号或者0
     return BigInt(ptr_c, digit_c, negative_c);
   }
-  int borrow; // 减法需要借位
+  int borrow(0); // 减法需要借位
   for (int i(0); i < minuend.digit_; ++i) {
     if (minuend.ptr_[i] < subtractor.ptr_[i]) { // 如果该位需要借位
       minuend.ptr_[i] += 10;
@@ -334,6 +333,7 @@ BigInt operator*(const BigInt &a, const BigInt &b) {
   int carry = 0; // 进位，最低位是0
   // a与b的每一位相乘，然后把所有和按照位数相加
   int *ptr_c = new int[digit_c];
+  *ptr_c = 0;
   for (int j(0); j < b.digit_; ++j) {   // b的每一位都要和a相乘
     for (int i(0); i < a.digit_; ++i) { // 每一轮加到a的最高有效位
       // 要像手算一样，a和b的第j位相乘，就要记录到从第j位开始到到位置
@@ -376,11 +376,11 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     // 当 a>b时，c的位数肯定小于等于a
     BigInt dividend;     // 被除数
     BigInt divisor;      // 除数
-    BigInt quotient("0");  // 商
+    string quotient;     // 商
     int quotient_top(0); //商的最高位
     dividend = a;
     divisor = ExtendFromHigh(dividend.digit_, b);
-    quotient = ExtendFromHigh(dividend.digit_, quotient);
+
     // 除数从高位往低位扩展，低位补0
     while (divisor.digit_ >= b.digit_) {
       if (Compare(dividend, divisor) >= 0) {
@@ -399,21 +399,23 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
         }
         // 如果被除数的位数减小了, 就需要把商的最高位记录到BigInt的最高位里面
         if ((pos + 1) < dividend.digit_) {
-          quotient = quotient + BigInt(to_string(quotient_top) + string(divisor.digit_ - b.digit_, '0'));
-          // dividend = Shorten(pos + 1, dividend);
-          quotient_top = 0;
           dividend = BigInt(dividend.ptr_, pos + 1);
         }
       } else { // 如果被除数 < 除数，有两种情况
         if (divisor.digit_ > b.digit_) {
-          // 如果除数位数比原来大，就缩小到和被除数位数-1，同样用ExtendFromHigh()函数
+          // 如果除数位数比原来大，就缩小到和被除数位数-1，
+          // 同时商的最高位也该写到商里面，因为开始下一位的运算了
+          quotient = quotient + to_string(quotient_top);
+          quotient_top = 0;
           divisor = Shorten(divisor.digit_ - 1, divisor);
-        } else
-          // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，跳出循环
+        } else {
+          // 如果位数已经和原来一样大，这时候被除数还小于除数，说明已经除完了，记录最后一位，然后跳出循环
+          quotient = quotient + to_string(quotient_top);
           break;
+        }
       }
     }
-    return quotient;
+    return BigInt(quotient);
   }
 }
 
