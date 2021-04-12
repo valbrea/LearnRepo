@@ -30,8 +30,8 @@
 19753086420
 */
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <stdlib.h>
 #include <string>
 using namespace std;
 class BigInt {
@@ -45,15 +45,15 @@ public:
   BigInt(const BigInt &c);
   ~BigInt();
   string Out();
-  BigInt &operator=(const BigInt &b);
-  friend int Compare(const BigInt &a, const BigInt &b);
-  friend BigInt ExtendFromLow(const int &digit, const BigInt &s);
-  friend BigInt ExtendFromHigh(const int &digit, const BigInt &s);
-  friend BigInt Shorten(const int &digit, const BigInt &s);
-  friend BigInt operator+(const BigInt &a, const BigInt &b);
-  friend BigInt operator-(const BigInt &a, const BigInt &b);
-  friend BigInt operator*(const BigInt &a, const BigInt &b);
-  friend BigInt operator/(const BigInt &a, const BigInt &b);
+  BigInt inline &operator=(const BigInt &b);
+  friend inline int Compare(const BigInt &a, const BigInt &b);
+  friend inline BigInt ExtendFromLow(const int &digit, const BigInt &s);
+  friend inline BigInt ExtendFromHigh(const int &digit, const BigInt &s);
+  friend inline BigInt Shorten(const int &digit, const BigInt &s);
+  friend inline BigInt operator+(const BigInt &a, const BigInt &b);
+  friend inline BigInt operator-(const BigInt &a, const BigInt &b);
+  friend inline BigInt operator*(const BigInt &a, const BigInt &b);
+  friend inline BigInt operator/(const BigInt &a, const BigInt &b);
 };
 int main() {
 
@@ -127,12 +127,11 @@ string BigInt::Out() {
 
   if (negative_ == 0)
     return "0";
-  char *temp = new char;
+  char *temp = new char[digit_];
   for (int i(digit_ - 1); i >= 0; --i) {
     sprintf(temp, "%d", ptr_[i]);
-    s_out += temp;
+    s_out = s_out + temp;
   }
-  delete temp;
 
   int pos = s_out.find_first_not_of("0", 0);
   s_out.erase(0, pos);
@@ -140,7 +139,7 @@ string BigInt::Out() {
     s_out.insert(0, "-");
   return s_out;
 }
-BigInt &BigInt::operator=(const BigInt &b) {
+inline BigInt &BigInt::operator=(const BigInt &b) {
   if (ptr_ == b.ptr_)
     return *this;
   if (ptr_)
@@ -158,7 +157,7 @@ BigInt &BigInt::operator=(const BigInt &b) {
   }
   return *this;
 }
-int Compare(const BigInt &a, const BigInt &b) {
+inline int Compare(const BigInt &a, const BigInt &b) {
 
   if (a.digit_ > b.digit_) {
     return 1;
@@ -180,7 +179,7 @@ int Compare(const BigInt &a, const BigInt &b) {
     return 0;
   }
 }
-BigInt ExtendFromLow(const int &digit, const BigInt &s = BigInt()) {
+inline BigInt ExtendFromLow(const int &digit, const BigInt &s = BigInt()) {
 
   int digit_ext = digit;
   int *ptr_ext;
@@ -196,7 +195,7 @@ BigInt ExtendFromLow(const int &digit, const BigInt &s = BigInt()) {
   }
   return BigInt(ptr_ext, digit_ext);
 }
-BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
+inline BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
 
   int digit_ext = digit;
   int *ptr_ext;
@@ -214,7 +213,7 @@ BigInt ExtendFromHigh(const int &digit, const BigInt &s = BigInt()) {
   }
   return BigInt(ptr_ext, digit_ext);
 }
-BigInt Shorten(const int &digit, const BigInt &s = BigInt()) {
+inline BigInt Shorten(const int &digit, const BigInt &s = BigInt()) {
 
   int digit_ext = digit;
   int *ptr_ext;
@@ -224,7 +223,7 @@ BigInt Shorten(const int &digit, const BigInt &s = BigInt()) {
 
   return BigInt(ptr_ext, digit_ext);
 }
-BigInt operator+(const BigInt &a, const BigInt &b) {
+inline BigInt operator+(const BigInt &a, const BigInt &b) {
 
   BigInt tmp_a, tmp_b;
   tmp_a = ExtendFromLow((a.digit_ >= b.digit_ ? a.digit_ : b.digit_), a);
@@ -249,7 +248,7 @@ BigInt operator+(const BigInt &a, const BigInt &b) {
   }
   return BigInt(ptr_c, digit_c);
 }
-BigInt operator-(const BigInt &a, const BigInt &b) {
+inline BigInt operator-(const BigInt &a, const BigInt &b) {
   int digit_c;
   int *ptr_c;
   int negative_c = -Compare(a, b);
@@ -289,7 +288,7 @@ BigInt operator-(const BigInt &a, const BigInt &b) {
     cout << "\'-\' error";
   return BigInt(ptr_c, digit_c, negative_c);
 }
-BigInt operator*(const BigInt &a, const BigInt &b) {
+inline BigInt operator*(const BigInt &a, const BigInt &b) {
 
   int digit_c = a.digit_ + b.digit_ + 1;
   BigInt tmp_a, tmp_b;
@@ -299,7 +298,8 @@ BigInt operator*(const BigInt &a, const BigInt &b) {
   int carry = 0;
 
   int *ptr_c = new int[digit_c];
-  *ptr_c = 0;
+  for (int i(0); i < digit_c; ++i)
+    ptr_c[i] = 0;
   for (int j(0); j < b.digit_; ++j) {
     for (int i(0); i < a.digit_; ++i) {
 
@@ -318,7 +318,7 @@ BigInt operator*(const BigInt &a, const BigInt &b) {
   }
   return BigInt(ptr_c, digit_c);
 }
-BigInt operator/(const BigInt &a, const BigInt &b) {
+inline BigInt operator/(const BigInt &a, const BigInt &b) {
   int digit_c;
   int *ptr_c;
   int negative_c = -Compare(a, b);
@@ -326,14 +326,13 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     digit_c = 1;
     ptr_c = new int[1];
     ptr_c[0] = 0;
-
+    negative_c = 0;
     return BigInt(ptr_c, digit_c, negative_c);
   } else if (negative_c == 0) {
-
     digit_c = 1;
     ptr_c = new int[1];
     ptr_c[0] = 1;
-
+    negative_c = -1;
     return BigInt(ptr_c, digit_c, negative_c);
   } else {
 
@@ -363,14 +362,17 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
         }
       } else {
         if (divisor.digit_ > b.digit_) {
-          char *temp_top = new char;
-          sprintf(temp_top, "%d", quotient_top);
+          char temp_top;
+          sprintf(&temp_top, "%d", quotient_top);
+          // temp_top = (char)quotient_top;
+
           quotient = quotient + temp_top;
           quotient_top = 0;
           divisor = Shorten(divisor.digit_ - 1, divisor);
         } else {
-          char *temp_top = new char;
-          sprintf(temp_top, "%d", quotient_top);
+          char temp_top;
+          sprintf(&temp_top, "%d", quotient_top);
+          // temp_top = (char)quotient_top;
           quotient = quotient + temp_top;
           break;
         }

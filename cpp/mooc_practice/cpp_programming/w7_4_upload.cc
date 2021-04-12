@@ -67,6 +67,7 @@ Op29adfk48
 Op29adfk48
 35a8
 */
+#include <cstdio>
 #include <deque>
 #include <iostream>
 #include <cstdlib>
@@ -90,7 +91,6 @@ int main() {
   while (command.find("over") == command.npos) {
     getline(cin, command);
     string temp_op;
-    int argc(0);
     deque<string> argv;
     for (int begin(0), blank(0); blank != command.npos; begin = blank + 1) {
       blank = command.find(' ', begin);

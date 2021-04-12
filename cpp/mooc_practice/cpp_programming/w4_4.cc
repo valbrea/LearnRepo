@@ -363,6 +363,7 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     digit_c = 1;
     ptr_c = new int[1];
     ptr_c[0] = 0;
+    negative_c = 0; // 除法时候 a < b 输出就是0
     // 返回值要包含negative，输出的时候用来判断是否输出负号或者0
     return BigInt(ptr_c, digit_c, negative_c);
   } else if (negative_c == 0) {
@@ -370,6 +371,7 @@ BigInt operator/(const BigInt &a, const BigInt &b) {
     digit_c = 1;
     ptr_c = new int[1];
     ptr_c[0] = 1;
+    negative_c = -1; // 除法的话，negative位应该是-1
     // 返回值要包含negative，输出的时候用来判断是否输出负号或者0
     return BigInt(ptr_c, digit_c, negative_c);
   } else {

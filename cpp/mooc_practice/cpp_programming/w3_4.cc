@@ -84,7 +84,6 @@ Camp::Camp(const string camp_name)
     : camp_name_(camp_name), worrior_number_(0), qty_(),
       camp_strength_(camp_strength_per_), worrior_type_in_order_(),
       strength_in_order_(), atk_in_order_(), index_(0) {
-  time_ = 0; // 两军共用一个时间
   const int *seq;
   if (camp_name == "red") {
     seq = red_seq_;
