@@ -18,11 +18,8 @@ using namespace std;
 int main() { 
     int a[] = {8,7,8,9,6,2,1}; 
 // 在此处补充你的代码
-    set<int> v;
-    set<int>::iterator i;
-    for (i = v.begin(); i != v.end(); ++i){
-        
-    }
+    set<int> v(a, a + 7);
+    
     ostream_iterator<int> o(cout," ");
     copy( v.begin(),v.end(),o); 
     return 0;

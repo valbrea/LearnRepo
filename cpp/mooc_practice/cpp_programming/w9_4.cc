@@ -1,3 +1,7 @@
+/*********************************************************
+同w7_4.cc
+这里复制了w7_4_upload.cc
+**********************************************************/
 /*
 编程题＃4： 字符串操作
 来源: POJ (Coursera声明：在POJ上完成的习题将不会计入Coursera的最后成绩。)
@@ -67,9 +71,10 @@ Op29adfk48
 Op29adfk48
 35a8
 */
+#include <cstdio>
 #include <deque>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 using namespace std;
 
@@ -78,6 +83,7 @@ string CheckOperator(deque<string> &argv);
 string *str;
 int str_n(0);
 int main() {
+  cin.sync();
   cin >> str_n;
   cin.ignore();
   str = new string[str_n + 1];
@@ -89,7 +95,6 @@ int main() {
   while (command.find("over") == command.npos) {
     getline(cin, command);
     string temp_op;
-    int argc(0);
     deque<string> argv;
     for (int begin(0), blank(0); blank != command.npos; begin = blank + 1) {
       blank = command.find(' ', begin);
