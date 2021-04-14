@@ -8,7 +8,9 @@
         "iostream": "cpp",
         "ostream": "cpp",
         "new": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "ratio": "cpp",
+        "algorithm": "cpp"
     },
     "C_Cpp.clang_format_fallbackStyle": "LLVM"
 }
