@@ -16,7 +16,7 @@
 using namespace std;
 int main()
 {
-    cout << "输入整数N" << endl;
+    // cout << "输入整数N" << endl;
     int end(0);
     cin >> end;
     int unit(0), decade(0);

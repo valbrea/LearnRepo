@@ -10,7 +10,7 @@
 using namespace std;
 int main()
 {
-    cout << "输出一个小于1000的整数" << endl;
+    // cout << "输出一个小于1000的整数" << endl;
     int money(0);
     cin >> money;
     // int num_100(0), num_50(0), num_20(0), num_10(0), num_5(0), num_1(0);

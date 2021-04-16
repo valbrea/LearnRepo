@@ -61,7 +61,7 @@ int operate(int num)
     }
     else if (num == 1)
     {
-        cout << "end" << endl;
+        cout << "End" << endl;
         return 0; // 正常出口
     }
     else

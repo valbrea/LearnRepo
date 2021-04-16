@@ -12,9 +12,9 @@ int main()
     int id[100];
     double rate[100]; //reproduction rate
     
-    cout << "请输入培养皿总数" << endl;
+    // cout << "请输入培养皿总数" << endl;
     cin >> total;
-    cout << "请输入培养皿编号、培养前细菌数量、培养后细菌数量。" << endl;
+    // cout << "请输入培养皿编号、培养前细菌数量、培养后细菌数量。" << endl;
     for (int i(0); i < total; ++i)
     {
         int initial, final;
@@ -54,22 +54,21 @@ int main()
     }
 
     //输出繁殖率较大的那组细菌
-    cout << "繁殖率较高的培养皿数量为：";
+    // cout << "繁殖率较高的培养皿数量为：";
     cout << maxDiffIndex + 1 << endl;
-    cout << "该组细菌培养皿编号按繁殖率从大到小排列为：";
+    // cout << "该组细菌培养皿编号按繁殖率从大到小排列为：";
     for (int i(maxDiffIndex); i >= 0; --i)
     {
-        cout << id[i] << " ";
+        cout << id[i] << endl;
     }
-    cout << endl;
 
     // 输出繁殖率较小的那组细菌
-    cout << "繁殖率较低的培养皿数量为：";
+    // cout << "繁殖率较低的培养皿数量为：";
     cout << total - 1 - maxDiffIndex << endl;
-    cout << "该组细菌培养皿编号按繁殖率从小到大排列为：";
+    // cout << "该组细菌培养皿编号按繁殖率从小到大排列为：";
     for (int i(total - 1); i >= maxDiffIndex + 1; --i)
     {
-        cout << id[i] << " ";
+        cout << id[i] << endl;
     }
     cout << endl;
 

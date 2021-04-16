@@ -31,7 +31,7 @@ int main()
             cin >> matrix[i][j];
         }
     }
-    cout << "输入n，m" << endl;
+    // cout << "输入n，m" << endl;
     cin >> n >> m;
 
     if ((n >= 0 && n < 5) && (m >= 0 && m < 5))
@@ -48,7 +48,7 @@ int main()
         {
             for (int j = 0; j < 5; j++)
             {
-                cout << setw(3) << matrix[i][j];
+                cout << setw(4) << matrix[i][j];
             }
             cout << endl;
         }

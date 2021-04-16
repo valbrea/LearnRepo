@@ -8,36 +8,28 @@
 #include <iostream>
 using namespace std;
 
-int main()
-{
-    cout << "输入6个正整数，且至少有一个奇数和一个偶数，且都小于100。" << endl;
-    int integer[6];
-    int min_even = 100, max_odd = 0;
-    for (int i(0); i < 6; ++i)
-    {
-        cin >> integer[i];
+int main() {
+  // cout << "输入6个正整数，且至少有一个奇数和一个偶数，且都小于100。" << endl;
+  int integer[6];
+  int min_even = 100, max_odd = 0;
+  for (int i(0); i < 6; ++i) {
+    cin >> integer[i];
 
-        if (integer[i] % 2 == 0 && integer[i] < min_even)
-        {
-            min_even = integer[i];
-        }
-        else if (integer [i] % 2 == 1 && integer[i] > max_odd)
-        {
-            max_odd = integer[i];
-        }
+    if (integer[i] % 2 == 0 && integer[i] < min_even) {
+      min_even = integer[i];
+    } else if (integer[i] % 2 == 1 && integer[i] > max_odd) {
+      max_odd = integer[i];
     }
+  }
 
-    int ans;
-    if (max_odd > min_even)
-    {
-        ans = max_odd - min_even;
-    }
-    else
-    {
-        ans = min_even - max_odd;
-    }
-    
-    cout << "答案是" << ans << endl;
+  int ans;
+  if (max_odd > min_even) {
+    ans = max_odd - min_even;
+  } else {
+    ans = min_even - max_odd;
+  }
 
-    return 0;
+  cout << ans << endl;
+
+  return 0;
 }

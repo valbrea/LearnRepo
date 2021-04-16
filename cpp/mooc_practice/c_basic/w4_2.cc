@@ -8,7 +8,7 @@ int main()
 {
     int a[10];
 
-    cout << "please enter ten integers." << endl;
+    // cout << "please enter ten integers." << endl;
     for (int i(0); i < 10; ++i)
     {
         cin >> a[i];

@@ -16,7 +16,7 @@ using namespace std;
 
 int main()
 {
-    cout << "输入分数" << endl;
+    // cout << "输入分数" << endl;
     int score(0);
     cin >> score;
     if (score >= 95 && score <= 100)

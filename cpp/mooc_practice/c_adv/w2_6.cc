@@ -21,68 +21,59 @@
 #include <iostream>
 using namespace std;
 
-int main()
-{
-    int number(0), day(1), end(0);
-    const char health('.'), empty('#'), inffected('@'), susceptible('!');
-    cin >> number;
-    char room[100][100] = {0};
-    for (int i(0); i < number; ++i)
-        for (int j(0); j < number; ++j)
-            cin >> room[i][j];
-    cin >> end;
-    for (day; day < end; ++day)
-    {
-        for (int i(0); i < number; ++i)
-        {
-            for (int j(0); j < number; ++j)
-            {
-                if (room[i][j] == inffected)
-                {
-                    if (room[i + 1][j] == health)
-                        room[i + 1][j] = susceptible;
-                    if (room[i - 1][j] == health)
-                        room[i - 1][j] = susceptible;
-                    if (room[i][j + 1] == health)
-                        room[i][j + 1] = susceptible;
-                    if (room[i][j - 1] == health)
-                        room[i][j - 1] = susceptible;
-                }
-            }
+int main() {
+  int number(0), day(1), end(0);
+  const char health('.'), empty('#'), inffected('@'), susceptible('!');
+  cin >> number;
+  char room[100][100] = {0};
+  for (int i(0); i < number; ++i)
+    for (int j(0); j < number; ++j)
+      cin >> room[i][j];
+  cin >> end;
+  for (day; day < end; ++day) {
+    for (int i(0); i < number; ++i) {
+      for (int j(0); j < number; ++j) {
+        if (room[i][j] == inffected) {
+          if (room[i + 1][j] == health)
+            room[i + 1][j] = susceptible;
+          if (room[i - 1][j] == health)
+            room[i - 1][j] = susceptible;
+          if (room[i][j + 1] == health)
+            room[i][j + 1] = susceptible;
+          if (room[i][j - 1] == health)
+            room[i][j - 1] = susceptible;
         }
+      }
+    }
 
-        for (int i(0); i < number; ++i)
-        {
-            for (int j(0); j < number; ++j)
-            {
-                // cout << room[i][j];
-                if (room[i][j] == susceptible)
-                    room[i][j] = inffected;
-            }
-            // cout << endl;
-        }
-        // cout << "过程中" << endl;
-        // for (int i(0); i < number; ++i)
-        // {
-        //     for (int j(0); j < number; ++j)
-        //     {
-        //         cout << room[i][j];
-        //     }
-        //     cout << endl;
-        // }
+    for (int i(0); i < number; ++i) {
+      for (int j(0); j < number; ++j) {
+        // cout << room[i][j];
+        if (room[i][j] == susceptible)
+          room[i][j] = inffected;
+      }
+      // cout << endl;
     }
-    int count(0);
-    cout << "结果" << endl;
-    for (int i(0); i < number; ++i)
-    {
-        for (int j(0); j < number; ++j)
-        {
-            if (room[i][j] == inffected)
-                 count++;
-            cout << room[i][j];
-        }
-        cout << endl;
+    // cout << "过程中" << endl;
+    // for (int i(0); i < number; ++i)
+    // {
+    //     for (int j(0); j < number; ++j)
+    //     {
+    //         cout << room[i][j];
+    //     }
+    //     cout << endl;
+    // }
+  }
+  int count(0);
+//   cout << "结果" << endl;
+  for (int i(0); i < number; ++i) {
+    for (int j(0); j < number; ++j) {
+      if (room[i][j] == inffected)
+        count++;
+    //   cout << room[i][j];
     }
-    cout << count << " inffected at day " << day << "." << endl;
-    return 0;
+    // cout << endl;
+  }
+  cout << count << endl;
+  return 0;
 }
