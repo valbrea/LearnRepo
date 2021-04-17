@@ -32,17 +32,17 @@ int route(int x, int y);
 int min(int a, int b);
 int m(0), n(0), steps(10000); // steps用来存放返回步数;
 // 二维数组动态分配
+int **phis;
+char **maze;
 // phis相当于一个100*100的二维数组指针，用于存放x,y到终点需要多少步
-int **phis = new int *[m];
-char **maze = new char *[m];
 struct coords {
   int x;
   int y;
 };
-
 int main() {
-
   cin >> m >> n;
+  phis = new int *[m];
+  maze = new char *[m];
   for (int i(0); i < m; ++i) {
     phis[i] = new int[n];
     memset(phis[i], -1, n * sizeof(int)); // 先将phis初始化为-1
@@ -73,28 +73,22 @@ int main() {
 }
 
 int route(int x, int y) {
-
   if (phis[x][y] != -1)
     return phis[x][y]; // 如果以前走过这里，就直接返回phis里的值
-
   if (maze[x][y] == 'T') // 如果x,y就是终点,返回0步
     return 0;
-
   // 枚举4个方向，对于每个方向,只能往不是'#'且在边界里的地方走，可行范围是 0 <=
   // x < m 且 0 <= y < n
-  if ((x + 1 < m) &&
-      maze[x + 1][y] !=
-          '#') // 下且x + 1不会撞'#'且不会走出边界。必须要把 x + 1 < m
-               // 放在&&前面，这样当面临出界的情况时,电脑就不会运算&&后面的表达式，从而避免route(x+1,y)出界引发的Segmentation
-               // fault
+  // 下且x + 1不会撞'#'且不会走出边界。必须要把 x + 1 < m
+  if ((x + 1 < m) && maze[x + 1][y] != '#')
+  // 放在&&前面，这样当面临出界的情况时,电脑就不会运算&&后面的表达式，从而避免route(x+1,y)出界引发的Segmentation
+  // fault
   {
-    maze[x][y] = '#'; // 记录位置， 把走过的地方也记录成#，这样就不会再走了
-    steps = min(
-        steps,
-        1 + route(
-                x + 1,
-                y)); // 递归计算，返回值+1是因为走了一步，
-                     // 且把目前存放的最低步数steps，与新返回的steps(返回值+1)做一个最小值比较，取低的那个。
+    // 记录位置， 把走过的地方也记录成#，这样就不会再走了
+    maze[x][y] = '#';
+    // 递归计算，返回值+1是因为走了一步，
+    steps = min(steps, 1 + route(x + 1, y));
+    // 且把目前存放的最低步数steps，与新返回的steps(返回值+1)做一个最小值比较，取低的那个。
     maze[x][y] = '.';                              // 撤销记录
   } else if ((y + 1 < n) && maze[x][y + 1] != '#') // 右
   {

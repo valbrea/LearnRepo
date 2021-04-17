@@ -4,7 +4,7 @@
 注意： 总时间限制: 1000ms 内存限制: 65536kB
 
 描述
-所谓角谷猜想，是指对于任意一个正整数，如果是奇数，则乘3加1，如果是偶数，则除以2，得到的结果再按照上述规则重复处理，最终总能够得到1。如，假定初始整数为5，计算过程分别为16、8、4、2、1。 
+所谓角谷猜想，是指对于任意一个正整数，如果是奇数，则乘3加1，如果是偶数，则除以2，得到的结果再按照上述规则重复处理，最终总能够得到1。如，假定初始整数为5，计算过程分别为16、8、4、2、1。
 程序要求输入一个整数，将经过处理得到1的过程输出来。
 
 输入
@@ -43,31 +43,24 @@ End
 */
 #include <iostream>
 using namespace std;
-int operate(int);
-int main()
-{
-    int num(0);
-    cin >> num;
-    operate(num); // 这里没管返回值
+void operate(int);
+int main() {
+  int num(0);
+  cin >> num;
+  operate(num);
 
-    return 0;
+  return 0;
 }
-int operate(int num)
-{
-    if(num % 2 == 0)
-    {
-        cout << num << "/2=" << (num /= 2) << endl;
-        operate(num);
-    }
-    else if (num == 1)
-    {
-        cout << "End" << endl;
-        return 0; // 正常出口
-    }
-    else
-    {
-        cout << num << "*3+1=" << (num = num * 3 + 1) << endl;
-        operate(num);
-    }
-    return -1; // 异常
+void operate(int num) {
+  if (num % 2 == 0) {
+    cout << num << "/2=" << (num / 2) << endl;
+    num /= 2;
+    operate(num);
+  } else if (num == 1) {
+    cout << "End" << endl;
+  } else {
+    cout << num << "*3+1=" << (num * 3 + 1) << endl;
+    num = num * 3 + 1;
+    operate(num);
+  }
 }

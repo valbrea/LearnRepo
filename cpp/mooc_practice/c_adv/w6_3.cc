@@ -46,23 +46,21 @@ top高程 >= 相邻四块地块的高程
 */
 #include <iostream>
 using namespace std;
-int main()
-{
-    int m(0), n(0), height[20][20] = {0};
-    cin >> m >> n;
-    for (int i(0); i < m; ++i)
-        for (int j(0); j < n; ++j)
-            cin >> height[i][j];
+int main() {
+  int m(0), n(0), height[1000][1000] = {0};
+  cin >> m >> n;
+  cin.ignore();
+  for (int i(0); i < m; ++i)
+    for (int j(0); j < n; ++j)
+      cin >> height[i][j];
 
-    for (int i(0); i < m; ++i)
-        for (int j(0); j < n; ++j)
-        {
-            if (height[i][j] >= height[i - 1][j] 
-             && height[i][j] >= height[i][j - 1]
-             && height[i][j] >= height[i + 1][j]
-             && height[i][j] >= height[i][j + 1])
-                cout << i << ' ' << j << endl;
-        }
+  for (int i(0); i < m; ++i)
+    for (int j(0); j < n; ++j) {
+      if (height[i][j] >= height[i - 1][j] &&
+          height[i][j] >= height[i][j - 1] &&
+          height[i][j] >= height[i + 1][j] && height[i][j] >= height[i][j + 1])
+        cout << i << ' ' << j << endl;
+    }
 
-    return 0;
+  return 0;
 }

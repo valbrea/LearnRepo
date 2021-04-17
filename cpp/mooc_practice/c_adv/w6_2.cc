@@ -32,43 +32,38 @@ TATAGAACGCGAGAACTAAGCGTATAAGA
 CGCAAAGCAACGTT
 AATTGCGTGTTGGATCTGAA
 */
+#include <cstring>
 #include <iostream>
 using namespace std;
-int main()
-{
-    int n(0);
-    char dna[1000][255] = {0}, pair[1000][255] = {0};
-
-    cin >> n;
-    // cin.ignore();
-    for (int i(0); i < n; ++i)
-    {
-        cin >> dna[i];
+int main() {
+  int n(0);
+  char dna[1000][256] = {0}, pair[1000][256] = {0};
+  cin >> n;
+  cin.ignore();
+  for (int i(0); i < n; ++i) {
+    cin >> dna[i];
+  }
+  for (int i(0); i < n; ++i) {
+    for (int j(0); j < strlen(dna[i]); ++j) {
+      switch (dna[i][j]) {
+      case 'A':
+        pair[i][j] = 'T';
+        break;
+      case 'T':
+        pair[i][j] = 'A';
+        break;
+      case 'C':
+        pair[i][j] = 'G';
+        break;
+      case 'G':
+        pair[i][j] = 'C';
+        break;
+      default:
+        break;
+      }
     }
-    for (int i(0); i < n; ++i)
-    {
-        for (int j(0); j < strlen(dna[i]); ++j)
-        {
-            switch (dna[i][j])
-            {
-            case 'A':
-                pair[i][j] = 'T';
-                break;
-            case 'T':
-                pair[i][j] = 'A';
-                break;
-            case 'C':
-                pair[i][j] = 'G';
-                break;
-            case 'G':
-                pair[i][j] = 'C';
-                break;
-            default:
-                break;
-            }
-        }
-        cout << pair[i] << endl;
-    }
+    cout << pair[i] << endl;
+  }
 
-    return 0;
+  return 0;
 }
