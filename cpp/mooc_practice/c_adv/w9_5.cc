@@ -33,8 +33,8 @@ int min(int a, int b);
 int m(0), n(0), steps(10000); // steps用来存放返回步数;
 // 二维数组动态分配
 // phis相当于一个100*100的二维数组指针，用于存放x,y到终点需要多少步
-int **phis = new int *[m];
-char **maze = new char *[m];
+int **phis;
+char **maze;
 struct coords {
   int x;
   int y;
@@ -43,6 +43,8 @@ struct coords {
 int main() {
 
   cin >> m >> n;
+  phis = new int *[m];
+  maze = new char *[m];
   for (int i(0); i < m; ++i) {
     phis[i] = new int[n];
     memset(phis[i], -1, n * sizeof(int)); // 先将phis初始化为-1

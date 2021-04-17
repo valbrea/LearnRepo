@@ -28,48 +28,47 @@
 样例输出
 (1,4),(2,3),(3,1)
 */
+#include <algorithm>
 #include <iostream>
+#include <deque>
 using namespace std;
+class Coordinate {
+public:
+  int x_;
+  int y_;
+  Coordinate(int x, int y) : x_(x), y_(y) {}
+  friend bool operator<(const Coordinate &a, const Coordinate &b);
+};
+bool operator<(const Coordinate &a, const Coordinate &b) { return a.x_ < b.x_; }
 int main() {
-  int n(0), coordinates[200][2];
+  int n;
   cin >> n;
   cin.ignore();
-  for (int i(0); i < n; ++i)
-    cin >> coordinates[i][0] >> coordinates[i][1]; // 输入
-  // 按x坐标从小到大排序
-  for (int i(0); i < n - 1; ++i)
-    for (int j(0); j < n - 1 - i; ++j) {
-      if (coordinates[j][0] > coordinates[j + 1][0]) {
-        int temp_x = coordinates[j][0];
-        coordinates[j][0] = coordinates[j + 1][0];
-        coordinates[j + 1][0] = temp_x;
-        int temp_y = coordinates[j][1];
-        coordinates[j][1] = coordinates[j + 1][1];
-        coordinates[j + 1][1] = temp_y;
+  deque<Coordinate> coords;
+  for (int i(0); i < n; ++i) {
+    int x, y;
+    cin >> x >> y;
+    coords.push_back(Coordinate(x, y));
+  }
+  sort(coords.begin(), coords.end());
+  deque<Coordinate> outs;
+  deque<Coordinate>::iterator ii, oo;
+  bool max = true;
+  for (oo = coords.begin(); oo != coords.end(); ++oo) {
+    for( ii = oo + 1; ii != coords.end(); ++ii) {
+      if (ii->x_ >= oo->x_ && ii->y_ >= oo->y_) {
+        max = false;
+        break;
       }
     }
-  int out_coords[200][2], (*p)[2] = out_coords, count(0);
-  for (int i(0); i < n; ++i) {
-    int a = coordinates[i][0], b = coordinates[i][1];
-    bool flag(0);
-    for (int j(i + 1); j < n; ++j) {
-      int x = coordinates[j][0], y = coordinates[j][1];
-      if (x >= a && y >= b)
-        flag = 1;
-    }
-    if (flag == 0) {
-      // 必须要把输出记录再统一输出，因为循环的时候输出无法保证最后不会多输出一个逗号。
-      (*p)[0] = a; 
-      (*p)[1] = b;
-      ++p;
-      ++count;
-    }
+    if (max == true)
+      outs.push_back(*oo);
+    max = true;
   }
-  for (p = out_coords; count > 1; --count, ++p)
-    cout << '(' << (*p)[0] << "," << (*p)[1] << "),";
-
-  cout << '(' << (*p)[0] << "," << (*p)[1] << ")"
-       << endl; // 要分开输出， 防止最后多输出一个逗号
+  for (oo = outs.begin(); oo != outs.end() - 1; ++oo) {
+    cout << "(" << oo->x_ << "," << oo->y_ << "),";
+  }
+  cout << "(" << oo->x_ << "," << oo->y_ << ")" << endl;
 
   return 0;
 }
