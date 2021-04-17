@@ -22,28 +22,25 @@
 */
 #include <iostream>
 using namespace std;
-int main()
-{
-    int matrix[100][100] = {0};
-    int k(0), m(0), n(0), sum_edge(0); // k组数据，m行n列
-    cin >> k;
-
-    while (k-- > 0)
-    {
-        cin >> m >> n;
-        for (int i(0); i < m; ++i)
-        {
-            for (int j(0); j < n; ++j)
-            {
-                cin >> matrix[i][j];
-                if (i == 0 || i == m - 1 || j == 0 || j == n - 1)
-                {
-                    sum_edge += matrix[i][j];
-                }
-            }
+int main() {
+  int matrix[100][100] = {0};
+  int k(0); // k组数据，m行n列
+  cin >> k;
+  cin.ignore();
+  while (k-- > 0) {
+    int sum_edge(0);
+    int m(0), n(0);
+    cin >> m >> n;
+    for (int i(0); i < m; ++i) {
+      for (int j(0); j < n; ++j) {
+        cin >> matrix[i][j];
+        if (i == 0 || i == m - 1 || j == 0 || j == n - 1) {
+          sum_edge += matrix[i][j];
         }
-        cout << sum_edge << endl;
+      }
     }
+    cout << sum_edge << endl;
+  }
 
-    return 0;
+  return 0;
 }

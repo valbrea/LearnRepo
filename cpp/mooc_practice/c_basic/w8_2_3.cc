@@ -6,7 +6,7 @@
  * 每年所得N万全都积攒起来，问第几年能够买下这套房子（第一年房价200万，收入N万）。
  * 程序员每年先拿工资，再尝试买房，然后房子才涨价。
  ***********************************************************************************
- 输入 有多行，每行两个整数N（10 <= N <= 50）, K（1 <= K <= 20） 
+ 输入 有多行，每行两个整数N（10 <= N <= 50）, K（1 <= K <= 20）
 ***********************************************************************************
 输出 针对每组数据，如果在第20年或者之前就能买下这套房子，
 则输出一个整数M，表示最早需要在第M年能买下，
@@ -15,32 +15,26 @@
 
 #include <iostream>
 using namespace std;
-int main()
-{
-    cout << "输入年薪N（万），房价增长率K" << endl;
-    double salary, rate;
-    while (cin >> salary >> rate)
-    {
-        double income = 0;
-        double outcome = 200;
-        bool success = false;
-        for (int i = 0; i < 20; i++)
-        {
-            income += salary;
-            if (income >= outcome)
-            {
-                success = true;
-                cout << i + 1 << endl;
-                break;
-            }
-            else
-                outcome *= (1 + rate / 100);
-        }
-        if (success == false)
-        {
-
-            cout << "Impossible" << endl;
-        }
+int main() {
+//   cout << "输入年薪N（万），房价增长率K" << endl;
+  double salary, rate;
+  while (cin >> salary >> rate) {
+    double income = 0;
+    double outcome = 200;
+    bool success = false;
+    for (int i = 0; i < 20; i++) {
+      income += salary;
+      if (income >= outcome) {
+        success = true;
+        cout << i + 1 << endl;
+        break;
+      } else
+        outcome *= (1 + rate / 100);
     }
-    return 0;
+    if (success == false) {
+
+      cout << "Impossible" << endl;
+    }
+  }
+  return 0;
 }

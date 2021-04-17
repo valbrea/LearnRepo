@@ -9,7 +9,8 @@
 
 1、能同时被3，5，7整除（直接输出3 5 7，每个数中间一个空格）；
 
-2、能被其中两个数整除（输出两个数，小的在前，大的在后。例如：3 5或者 3 7或者5 7,中间用空格分隔）
+2、能被其中两个数整除（输出两个数，小的在前，大的在后。例如：3 5或者 3 7或者5
+7,中间用空格分隔）
 
 3、能被其中一个数整除（输出这个除数）
 
@@ -23,29 +24,29 @@
 */
 #include <iostream>
 using namespace std;
-int main()
-{
-    int num = 0;
-    while (cin >> num)
-    {
-        if (num % 3 == 0)
-        {
-            if (num % 5 == 0)
-            {
-                if (num % 7 == 0) cout << "3 5 7" << endl;
-                else cout << "3 5" << endl;
-            }
-            else if (num % 7 == 0) cout << "3 7" << endl;
-            else cout << "3" << endl;
-        }
-        else if (num % 5 == 0)
-        {
-            if (num % 7 == 0) cout << "5 7" << endl;
-            else cout << "5" << endl;
-        }
-        else if (num % 7 == 0) cout << "7" << endl;
-        else cout << "n" << endl;
-    }
+int main() {
+  int num = 0;
+  while (cin >> num) {
+    if (num % 3 == 0) {
+      if (num % 5 == 0) {
+        if (num % 7 == 0)
+          cout << "3 5 7" << endl;
+        else
+          cout << "3 5" << endl;
+      } else if (num % 7 == 0)
+        cout << "3 7" << endl;
+      else
+        cout << "3" << endl;
+    } else if (num % 5 == 0) {
+      if (num % 7 == 0)
+        cout << "5 7" << endl;
+      else
+        cout << "5" << endl;
+    } else if (num % 7 == 0)
+      cout << "7" << endl;
+    else
+      cout << "n" << endl;
+  }
 
-    return 0;
+  return 0;
 }

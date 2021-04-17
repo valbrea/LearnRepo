@@ -7,41 +7,40 @@
 
 #include <iostream>
 using namespace std;
-int main()
-{
-    cout << "输入整数个数n和想求得的序号k" << endl;
-    int total, k;
-    cin >> total >> k;
-    cout << "输入" << total << "个整数" << endl;
-    int num[total] = {};
-    for (int i(0); i < total; i++)
-        cin >> num[i];
+int main() {
+  // cout << "输入整数个数n和想求得的序号k" << endl;
+  int n, k;
+  cin >> n;
+  cin.ignore();
+  cin >> k;
+  cin.ignore();
+  // cout << "输入" << n << "个整数" << endl;
 
-    int max = 0;
-    int max_index = 0;
-    for (int j = 0; j < k - 1; j++)
-    {
-        for (int i = 0; i < total; i++)
-        {
-            if (num[i] >= max)
-            {
-                max = num[i];
-                max_index = i;
-            }
-        }
-        num[max_index] = 0;
-        max = 0;
+  int a[10000] = {0};
+  for (int i(0); i < n; i++)
+    cin >> a[i];
+
+  int max = 0;
+  int max_index = 0;
+  // 把比k大的数全部清零，删除k-1次就找到k了
+  for (int j = 0; j < k - 1; j++) {
+    for (int i = 0; i < n; i++) {
+      if (a[i] >= max) {
+        max = a[i];
+        max_index = i;
+      }
     }
+    a[max_index] = 0;
+    max = 0;
+  }
 
-    for (int i = 0; i < total; i++)
-    {
-        if (num[i] > max)
-        {
-            max = num[i];
-            max_index = i;
-        }
+  for (int i = 0; i < n; i++) {
+    if (a[i] > max) {
+      max = a[i];
+      max_index = i;
     }
-    cout << max << endl;
+  }
+  cout << max << endl;
 
-    return 0;
+  return 0;
 }

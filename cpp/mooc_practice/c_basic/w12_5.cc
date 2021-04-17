@@ -17,38 +17,31 @@ str substr
 输出
 对于每一组测试数据，输出插入之后的字符串。
 */
-#include <iostream>
 #include <cstring>
+#include <iostream>
 using namespace std;
-int main()
-{
-    char str[14] = {0} , substr[4] = {0};
-    while(cin.getline(str, 11, ' ') && cin.getline(substr, 4))
-    {
-        char max(0);
-        int max_index(0);
-        // 找出最大的字符和对应位置
-        for (int i(0); str[i] != 0; ++i)
-        {   
-            if (str[i] > max)
-            {
-                max_index = i;
-                max = str[i];
-            }
-        }
-        // 从后往前移3格
-        for (int i(strlen(str)); i > max_index; --i)
-        {
-            str[i + 3] = str[i];
-        }
-        // 把子串插入主串 
-        for (int i(max_index + 1); i < max_index + 4; ++i)
-        {
-            str[i] = substr[i - max_index - 1];
-        }
-        cout << str << endl;
-
+int main() {
+  char str[14] = {0}, substr[4] = {0};
+  while (cin.getline(str, 11, ' ') && cin.getline(substr, 4)) {
+    char max(0);
+    int max_index(0);
+    // 找出最大的字符和对应位置
+    for (int i(0); str[i] != 0; ++i) {
+      if (str[i] > max) {
+        max_index = i;
+        max = str[i];
+      }
     }
+    // 从后往前移3格
+    for (int i(strlen(str)); i > max_index; --i) {
+      str[i + 3] = str[i];
+    }
+    // 把子串插入主串
+    for (int i(max_index + 1); i < max_index + 4; ++i) {
+      str[i] = substr[i - max_index - 1];
+    }
+    cout << str << endl;
+  }
 
-    return 0;
+  return 0;
 }

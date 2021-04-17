@@ -6,20 +6,20 @@
 #include <iostream>
 using namespace std;
 
-int main()
-{
-    unsigned int number;
-    cout << "请输入四位数字:" << endl;
-    cin >> number;
-    if (number >= 1000 && number < 10000)
-    {
-        cout << "千位" << number / 1000 << endl;
-        cout << "百位" << number / 100 % 10 << endl;
-        cout << "十位" << number / 10 % 10 << endl;
-        cout << "个位" << number % 10 << endl;
-    }
-    else 
-    cout << "请输入四位数字。" << endl;
+int main() {
+  unsigned int number;
+  cin >> number;
+  if (number >= 100 && number < 1000) {
+    // cout << "千位" << number / 1000 << endl;
+    // cout << "百位" << number / 100 % 10 << endl;
+    // cout << "十位" << number / 10 % 10 << endl;
+    // cout << "个位" << number % 10 << endl;
+    // cout << number / 1000 << endl;
+    cout << number / 100 % 10 << endl;
+    cout << number / 10 % 10 << endl;
+    cout << number % 10 << endl;
+  } else {}
+    // cout << "请输入四位数字。" << endl;
 
-    return 0;
+  return 0;
 }
