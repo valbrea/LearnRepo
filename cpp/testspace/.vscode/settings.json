@@ -75,7 +75,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "locale": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "__hash_table": "cpp"
     },
     "C_Cpp.clang_format_fallbackStyle": "LLVM",
     "C_Cpp.default.cppStandard": "c++20",
