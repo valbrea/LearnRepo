@@ -59,6 +59,11 @@ struct Data {
   Data() : coefficient_(0), exponent_(0) {}
   Data(int coe, int exp) : coefficient_(coe), exponent_(exp) {}
   bool operator>=(Data &b) const { return exponent_ >= b.exponent_; }
+  bool operator==(Data &b) const { return exponent_ == b.exponent_; }
+  bool operator!=(Data &b) const { return exponent_ != b.exponent_; }
+  Data operator+(Data &b) const {
+    return Data(coefficient_ + b.coefficient_, exponent_);
+  }
 };
 ostream &operator<<(ostream &os, const Data &data) {
   os << "[" << data.coefficient_ << " " << data.exponent_ << "] ";
@@ -122,9 +127,10 @@ public:
     ++size_;
     return pos->InsertAsPred(data);
   }
+  // 二路归并，可以用于两个不同的list对象，返回新的size_
   // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
-  void Merge(ListNode *&p_first, int first_size, List<T> &lst,
-             ListNode *p_second, int second_size) {
+  int Merge(ListNode *&p_first, int first_size, List<T> &lst,
+            ListNode *p_second, int second_size) {
     ListNode *pp = p_first->pre_;
     while (second_size > 0) { // 若第二个链表没合并完
       // 若第一个链表没合并完且第一个链表中节点的数据 <= 第二个链表中节点的数据
@@ -144,6 +150,10 @@ public:
       }
     }
     p_first = pp->suc_; // 确定归并后区间的起点
+    if (lst.head_ == this->head_)
+      return size_; // 如果是自己区间里的合并，size不变
+    else
+      return (size_ += lst.size_);
   }
   // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
   void MergeSort(ListNode *&p_begin, int size) {
@@ -165,14 +175,29 @@ public:
     }
     cout << endl;
   }
+  // 合并指数重复的元素，并把系数相加，返回新的size_
+  int PolyUniqueAdd() {
+    if (size_ < 2)
+      return size_;
+    ListNode *p = head_->suc_, *q;
+    while (tail_ != (q = p->suc_)) {
+      if (p->data_ != q->data_)
+        p = q;
+      else {
+        p->data_ = p->data_ + q->data_;
+        DeleteNode(q);
+      }
+    }
+    return size_;
+  }
 };
-List<Data> *Add(List<Data> *)
+
 int main() {
   int n;
   cin >> n;
   cin.ignore();
-  List<Data> poly1, poly2;
   while (n--) {
+    List<Data> poly1, poly2;
     int coe(0), exp(0);
     while (cin >> coe >> exp) {
       if (exp < 0)
@@ -197,12 +222,21 @@ int main() {
     // 也就相当于pp->suc_的内容也会跟着一起改变
     Node<Data> *begin1 = poly1.head_->suc_;
     Node<Data> *begin2 = poly2.head_->suc_;
+    // poly1.MergeSort(begin1, poly1.size_);
+    // poly2.MergeSort(begin2, poly2.size_);
+    // cout << "**************************************" << endl;
+    // poly1.Print(poly1.head_->suc_, poly1.size_);
+    // poly2.Print(poly2.head_->suc_, poly2.size_);
+    // 把lst1和lst2都合并到lst1里
+    poly1.Merge(begin1, poly1.size_, poly2, begin2, poly2.size_);
+    // cout << "**************************************" << endl;
+    // poly1.Print(poly1.head_->suc_, poly1.size_);
+    // 先归并排序
     poly1.MergeSort(begin1, poly1.size_);
-    poly2.MergeSort(begin2, poly2.size_);
-    cout << "**************************************" << endl;
+    // poly1.Print(poly1.head_->suc_, poly1.size_);
+    // 再使用PolyUniqueAdd()这个函数做加法，合并同类项
+    poly1.PolyUniqueAdd();
     poly1.Print(poly1.head_->suc_, poly1.size_);
-    poly2.Print(poly2.head_->suc_, poly2.size_);
-    
   }
   return 0;
 }
