@@ -45,17 +45,41 @@
 [ 2 20 ] [ 2 19 ] [ 2 17 ] [ 15 10 ] [ 5 9 ] [ 6 5 ] [ 14 4 ] [ 35 2 ] [ -22 0 ]
 [ 2 23 ] [ 2 19 ] [ 2 17 ] [ 15 10 ] [ 6 8 ] [ 8 7 ] [ -3 5 ] [ 44 4 ] [ 22 2 ]
 [ -18 0 ]
+
+提示
+第一组样例数据的第二行末尾的8 -8，因为幂次-8为负数，所以这一行数据结束，8
+-8不要参与计算。
 */
 #include <iostream>
 using namespace std;
+
+struct Data {
+  int coefficient_;
+  int exponent_;
+  Data() : coefficient_(0), exponent_(0) {}
+  Data(int coe, int exp) : coefficient_(coe), exponent_(exp) {}
+  bool operator>=(Data &b) const { return exponent_ >= b.exponent_; }
+};
+ostream &operator<<(ostream &os, const Data &data) {
+  os << "[" << data.coefficient_ << " " << data.exponent_ << "] ";
+  return os;
+}
+
 template <typename T> struct Node {
   T data_;
   Node *pre_;
   Node *suc_;
 
   Node() {}
+  Node(const T &data) : data_(data), pre_(nullptr), suc_(nullptr) {}
   Node(const T &data, Node *pre, Node *suc)
       : data_(data), pre_(pre), suc_(suc) {}
+  Node<T> *InsertAsPred(const T &data) {
+    Node<T> *temp = new Node<T>(data, pre_, this);
+    pre_->suc_ = temp;
+    pre_ = temp;
+    return temp;
+  }
 };
 
 template <typename T> class List {
@@ -64,7 +88,7 @@ public:
   int size_;
   ListNode *head_;
   ListNode *tail_;
-  List() : size_(0), {
+  List() : size_(0) {
     head_ = new ListNode();
     tail_ = new ListNode();
     head_->suc_ = tail_;
@@ -75,13 +99,15 @@ public:
       DeleteNode(head_->suc_);
     }
   }
-  // 在队尾创建节点
-  void CreateNode(T &data) {
-    ListNode *temp = new ListNode(data, tail_->pre_, tail_);
-    tail_->pre_->suc_ = temp;
-    tail_->pre_ = temp;
+  // 队尾创建节点
+  void CreateNode(const T &data) {
+    ListNode *cur = new ListNode(data, tail_->pre_, tail_);
+    tail_->pre_->suc_ = cur;
+    tail_->pre_ = cur;
     ++size_;
   }
+  // 有序列表的二路归并：
+  // 当前列表中自p_first起的first_size个元素，与列表lst中自p_second起的second_size个元素归并
   // 删除合法节点pos， 返回其数值
   T DeleteNode(ListNode *pos) {
     T data = pos->data_;
@@ -92,61 +118,91 @@ public:
     return data;
   }
   // 在节点pos前插入一个数据为data的节点作为前驱
-  ListNode *InsertBefore(ListNode *pos, T &data) {
+  ListNode *InsertBefore(ListNode *pos, const T &data) {
     ++size_;
-    ListNode *temp = new ListNode(data, pos->pre_, pos);
-    pos->pre_->suc = temp;
-    pos->pre_ = temp;
-    return temp;
+    return pos->InsertAsPred(data);
   }
-  // 有序列表的二路归并：
-  // 当前列表中自p_first起的first_size个元素，与列表lst中自p_second起的second_size个元素归并
-  void Merge(ListNode *p_first, int first_size, List<T> &lst, ListNode *p_second,
-             int second_size) {
+  // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
+  void Merge(ListNode *&p_first, int first_size, List<T> &lst,
+             ListNode *p_second, int second_size) {
     ListNode *pp = p_first->pre_;
     while (second_size > 0) { // 若第二个链表没合并完
-      // 若第一个链表没合并完且第一个链表中节点的指数 <= 第二个链表中节点的指数
-      if ((first_size > 0) && (p_first->data_ <= p_second->data_)) {
+      // 若第一个链表没合并完且第一个链表中节点的数据 <= 第二个链表中节点的数据
+      if ((first_size > 0) && (p_first->data_ >= p_second->data_)) { //重载>=
         // 第一个链表归入合并的链表，并替换为其直接后继
         p_first = p_first->suc_;
         if (p_second == p_first)
           break; // 如果第一个链表耗尽则结束
         --first_size;
       } else {
-        // 若第一个链表已经耗尽，或第一个链表中节点的指数 > 第二个链表中节点的指数
+        // 若第一个链表已经耗尽，或第一个链表中节点的数据>第二个链表中节点的数据
         // 在第一个链表的前面插入第二个链表中的p_second元素
-        InsertBefore(p_first, lst.DeleteNode((p_second = p_second->suc_)->pred));
+        ListNode *temp = p_second;
+        p_second = p_second->suc_;
+        InsertBefore(p_first, lst.DeleteNode(temp));
         --second_size;
       }
-      p_first = pp->suc_; // 确定归并后区间的起点
     }
+    p_first = pp->suc_; // 确定归并后区间的起点
   }
-  void MergeSort(ListNode *p_begin, int size) {
-    if (size_ < 2)
+  // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
+  void MergeSort(ListNode *&p_begin, int size) {
+    if (size < 2)
       return;
-    int mid = size_ >> 1;
+    int mid = size >> 1;
     ListNode *p_mid = p_begin;
     for (int i(0); i < mid; ++i)
-      p_mid = p_mid->suc_;              // elem_mid指向mid处
-    MergeSort(p_begin, mid);            // 归并排序[1, mid]
-    MergeSort(p_mid->suc_, size - mid); // 归并排序[mid + 1, size]
-    Merge(p_begin, mid, *this, p_mid->suc_, size - mid)
+      p_mid = p_mid->suc_;        // elem_mid指向mid处
+    MergeSort(p_begin, mid);      // 归并排序[1, mid)
+    MergeSort(p_mid, size - mid); // 归并排序[mid, tail)
+    Merge(p_begin, mid, *this, p_mid, size - mid);
+    // Print(p_begin, size);
   }
-
-  int main() {
-    int n;
-    cin >> n;
-    cin.ignore();
-    List<int> poly1, poly2;
+  void Print(ListNode *cur, int n) {
     while (n--) {
-      int coe(0), exp(0);
-      while ((cin >> coe >> exp) >= 0) {
-        poly1.CreateNode(make_pair(coe, exp));
-      }
-      while ((cin >> coe >> exp) >= 0) {
-        poly2.CreateNode(make_pair(coe, exp));
-      }
+      cout << cur->data_;
+      cur = cur->suc_;
     }
+    cout << endl;
+  }
+};
+List<Data> *Add(List<Data> *)
+int main() {
+  int n;
+  cin >> n;
+  cin.ignore();
+  List<Data> poly1, poly2;
+  while (n--) {
+    int coe(0), exp(0);
+    while (cin >> coe >> exp) {
+      if (exp < 0)
+        break;
+      poly1.CreateNode(Data(coe, exp));
+    }
+    cin.ignore();
+    while (cin >> coe >> exp) {
+      if (exp < 0)
+        break;
+      poly2.CreateNode(Data(coe, exp));
+    }
+    // 这里必须先建立一个临时变量begin1保存第一个元素的地址
+    // 然后MergeSort的第一个参数传入begin1
+    // 而不能传入poly1.head_->suc_，因为MergeSort是引用传入
+
+    // 如果传入的是poly1.head_->suc_的引用给begin
+    // 当函数里面begin = begin->suc_;语句执行以后，
+    // poly1.head_->suc_也就跟着改变了
+    // 但在MergeSort里面使用了pp来保存begin->pre_的地址，也就是poly1.head_
+    // 改变了begin就相当于就改变了poly1.head_->suc_，
+    // 也就相当于pp->suc_的内容也会跟着一起改变
+    Node<Data> *begin1 = poly1.head_->suc_;
+    Node<Data> *begin2 = poly2.head_->suc_;
+    poly1.MergeSort(begin1, poly1.size_);
+    poly2.MergeSort(begin2, poly2.size_);
+    cout << "**************************************" << endl;
+    poly1.Print(poly1.head_->suc_, poly1.size_);
+    poly2.Print(poly2.head_->suc_, poly2.size_);
+    
   }
   return 0;
 }
