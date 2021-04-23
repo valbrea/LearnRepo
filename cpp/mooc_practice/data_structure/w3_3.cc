@@ -45,35 +45,100 @@ NO
 */
 #include <iostream>
 #include <stack>
+#include <string>
 using namespace std;
-bool Prior(char a, char b) {}
+string TypeIn(string str) {
+  stack<char> temp;
+  string eq;
+  char op;
+  // 注意！！！加减乘除优先级一样！！注意看题！
+  for (int i(0); i < str.size(); ++i) {
+    op = str[i]; // str不需要pop了
+    if (isalnum(op))
+      eq += op;
+    else if (op == '(')
+      temp.push(op);
+    else if (op == ')') {
+      // 右括号只用来判断，不入栈
+      while (temp.top() != '(') {
+        eq += temp.top();
+        temp.pop();
+      }
+      temp.pop(); // 丢弃左括号
+    } else {
+      // 本题中加减乘除优先级都一样，所以操作会不一样
+      if (temp.empty() || temp.top() == '(')
+        temp.push(op);
+      else {
+        eq += temp.top();
+        temp.pop();
+        temp.push(op);
+      }
+    }
+  }
+  while (!temp.empty()) {
+    eq += temp.top();
+    temp.pop();
+  }
+  return eq;
+}
+int Cal(string out) {
+  stack<int> temp_int;
+  char op;
+  int a, b;
+  for (int i(0); i < out.size(); ++i) {
+    op = out[i];
+    if (isalpha(op)) {
+      temp_int.push(op);
+    } else if (isdigit(op)){
+      temp_int.push(op - '0');
+    } else {
+      b = temp_int.top();
+      temp_int.pop();
+      a = temp_int.top();
+      temp_int.pop();
+      switch (op) {
+      case '+':
+        a += b;
+        temp_int.push(a);
+        break;
+      case '-':
+        a -= b;
+        temp_int.push(a);
+        break;
+      case '*':
+        a *= b;
+        temp_int.push(a);
+        break;
+      case '/':
+        a /= b;
+        temp_int.push(a);
+        break;
+      default:
+        break;
+      }
+    }
+  }
+  return temp_int.top();
+}
 int main() {
   int n;
   cin >> n;
   cin.ignore();
   while (n--) {
-    stack<char> temp1, eq1;
-    char op;
-    // 注意！！！加减乘除优先级一样！！注意看题！
-    while ((op = cin.get()) != '\n') {
-      if (isalnum(op))
-        eq1.push(op);
-      else if (op == '(') {
-        temp1.push(op);
-      } else if (op == ')') {
-        // 右括号只用来判断，不入栈
-        while (temp1.top() != '(') {
-          eq1.push(temp1.top());
-          temp1.pop();
-        }
-        temp1.pop(); // 丢弃左括号
-      }
-      else {
-        // 本题中加减乘除优先级都一样！！！
-        if (temp1.empty())
-          temp1.push(op);
-      }
-    }
+    string str1, str2;
+    getline(cin, str1);
+    getline(cin, str2);
+    string out1, out2;
+    out1 = TypeIn(str1);
+    out2 = TypeIn(str2);
+    int ans1, ans2;
+    ans1 = Cal(out1);
+    ans2 = Cal(out2);
+    if (ans1 == ans2)
+      cout << "YES" << endl;
+    else
+      cout << "NO" << endl;
   }
   return 0;
 }
