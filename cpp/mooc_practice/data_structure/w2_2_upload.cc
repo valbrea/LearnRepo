@@ -76,7 +76,7 @@ template <typename T> struct Node {
   Node *suc_;
 
   Node() {}
-  Node(const T &data) : data_(data), pre_(nullptr), suc_(nullptr) {}
+  Node(const T &data) : data_(data), pre_(NULL), suc_(NULL) {}
   Node(const T &data, Node *pre, Node *suc)
       : data_(data), pre_(pre), suc_(suc) {}
   Node<T> *InsertAsPred(const T &data) {
@@ -105,7 +105,7 @@ public:
     }
   }
   // 队尾创建节点
-  void CreateNode(const T &data) {
+  inline void CreateNode(const T &data) {
     ListNode *cur = new ListNode(data, tail_->pre_, tail_);
     tail_->pre_->suc_ = cur;
     tail_->pre_ = cur;

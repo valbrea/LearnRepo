@@ -29,6 +29,7 @@ template <typename T> struct Node {
   Node *pre_;
   Node *suc_;
   Node() {}
+  Node(const T &data) : data_(data) {}
   Node(const T &data, Node *pre, Node *suc)
       : data_(data), pre_(pre), suc_(suc) {}
 };
@@ -37,42 +38,46 @@ template <typename T> class List {
 public:
   typedef Node<T> ListNode;
   int size_;
-  ListNode *cur_;
-  List() : size_(0), cur_() {}
+  ListNode *head_;
+  ListNode *tail_;
+  List() : size_(0) {}
   ~List() {
-    while (size_) { DeleteNode(); }
+    while (size_) {
+      DeleteNode();
+    }
   }
-  // 创建N个节点，返回最后一个节点的编号
+  // 创建N个节点
   void CreateNode(int n) {
-    size_ = n;
-    // 起始编号是1
-    int x = 0;
-    ListNode *tail = new ListNode(++x, cur_, cur_);
-    cur_ = tail;
-    while (--n) {
-      tail = new ListNode(++x, tail, cur_);
-      tail->pre_->suc_ = tail;
+    int num(1);
+    ListNode *cur = new ListNode(num);
+    head_ = cur;
+    tail_ = cur;
+    ++size_;
+    --n;
+    while (n--) {
+      cur = new ListNode(++num, tail_, head_);
+      tail_->suc_ = cur;
+      tail_ = cur;
+      ++size_;
     }
-    cur_->pre_ = tail;
+    //循环链表
+    tail_->suc_ = head_;
+    head_->pre_ = tail_;
   }
-  // 寻找第m个节点，返回这个节点
-  void *FindNode(int m) {
-    while (m--) {
-      cur_ = cur_->suc_;
-    }
+  // 寻找第m个节点，把head指向这个节点
+  void FindNode(int m) {
+    while (--m)
+      head_ = head_->suc_;
   }
-  // 删除某个节点，返回新的size_
-  int DeleteNode() {
-    if (size_ <= 0)
-      return 0;
-    ListNode *temp = cur_;
+  // 删除head指向的节点
+  void DeleteNode() {
+    ListNode *temp = head_;
     temp->pre_->suc_ = temp->suc_;
     temp->suc_->pre_ = temp->pre_;
-    cur_ = cur_->suc_;
+    head_ = head_->suc_;
     delete temp;
     --size_;
-    return size_;
-  };
+  }
 };
 
 int main() {
@@ -81,10 +86,10 @@ int main() {
   cin.ignore();
   List<int> joseph;
   joseph.CreateNode(n);
-  while (joseph.size_ > 1) { 
+  while (joseph.size_ > 1) {
     joseph.FindNode(m);
     joseph.DeleteNode();
   }
-  cout << joseph.cur_->data_ << endl;
+  cout << joseph.head_->data_ << endl;
   return 0;
 }
