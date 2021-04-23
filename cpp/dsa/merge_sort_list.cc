@@ -1,8 +1,10 @@
 // 有序列表的二路归并：
+// ***************************************************************************************
+// 二路归并，可以用于两个不同的list对象，返回新的size_
 // 当前列表中自p_first起的first_size个元素，与列表lst中自p_second起的second_size个元素归并
 // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
-void Merge(ListNode *&p_first, int first_size, List<T> &lst, ListNode *p_second,
-           int second_size) {
+int Merge(ListNode *&p_first, int first_size, List<T> &lst, ListNode *p_second,
+          int second_size) {
   ListNode *pp = p_first->pre_;
   while (second_size > 0) { // 若第二个链表没合并完
     // 若第一个链表没合并完且第一个链表中节点的数据 <= 第二个链表中节点的数据
@@ -22,6 +24,10 @@ void Merge(ListNode *&p_first, int first_size, List<T> &lst, ListNode *p_second,
     }
   }
   p_first = pp->suc_; // 确定归并后区间的起点
+  if (lst.head_ == this->head_)
+    return size_; // 如果是自己区间里的合并，size不变
+  else
+    return (size_ += lst.size_);
 }
 // 这里由于需要在函数里改变p_first所指的位置，需要指向p_first的引用
 void MergeSort(ListNode *&p_begin, int size) {
