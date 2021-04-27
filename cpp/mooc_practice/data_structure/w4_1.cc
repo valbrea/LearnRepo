@@ -39,6 +39,8 @@ eight hundred fourteen thousand twenty two
 814022
 */
 #include <iostream>
+#include <queue>
+#include <stack>
 #include <string>
 using namespace std;
 struct Voca {
@@ -48,8 +50,9 @@ struct Voca {
   Voca(string voca, int num, int times)
       : vocabulary_(voca), num_(num), times_(times) {}
 };
+int Transform(Voca vocas[], stack<string> &words);
 int main() {
-  Voca vocas[32] = {{"negative", 0, -1},
+  Voca vocas[32] = {{"negative", 1, -1},
                     {"zero", 0, 1},
                     {"one", 1, 1},
                     {"two", 2, 1},
@@ -83,28 +86,33 @@ int main() {
                     {"million", 1000000, 1000000}};
   string english;
   while (getline(cin, english)) {
-    string word;
-    int blank(0), start(0);
-    do {
-      int output(0), nega(0);
-      blank = english.find(' ', start);
-      if (blank != string ::npos) {
-        word = english.substr(start, blank - start);
-        start = blank + 1;
-      } else {
-        blank = english.size();
-        word = english.substr(start, blank - start);
-      }
-      for (int i(0); i < 32; ++i) {
-        if (word == vocas[i].vocabulary_) {
-          output += vocas[i].num_ * vocas[i].times_;
-          break;
-        }
-      }
-      if (word == vocas[31].vocabulary_)
-        nega = 1;
-    } while (blank != string::npos);
+    stack<string> words;
+    for (int begin(0), blank(0); blank != english.npos; begin = blank + 1) {
+      blank = english.find(' ', begin); // blank = npos时也能把最后一个单词录入
+      words.push(english.substr(begin, blank - begin));
+    }
+    cout << Transform(vocas, words) << endl;
   }
 
   return 0;
+}
+int Transform(Voca voca[], stack<string> &word) {
+  int ans(0);
+  int times(1);
+  while (!word.empty()) {
+    string last = word.top();
+    word.pop();
+    for (int i(0); i < 32; ++i) {
+      if (last == voca[i].vocabulary_) {
+        if (voca[i].times_ == -1)
+          ans *= -1;
+        else if (voca[i].times_ == 1)
+          ans += voca[i].num_ * times;
+        else
+          times *= voca[i].times_;
+        break;
+      }
+    }
+  }
+  return ans;
 }
