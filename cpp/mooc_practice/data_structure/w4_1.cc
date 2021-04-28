@@ -109,7 +109,7 @@ int Transform(Voca voca[], stack<string> &word) {
         else if (voca[i].times_ == 1)
           ans += voca[i].num_ * times;
         else
-          times *= voca[i].times_;
+          times = voca[i].times_;
         break;
       }
     }
