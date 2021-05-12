@@ -76,14 +76,14 @@ class Node {
 public:
   char ch_;
   Node *left_child_, *right_child_;
-  Node(const char ch) : ch_(), left_child_(NULL), right_child_(NULL) {}
+  Node(const char ch) : ch_(ch), left_child_(NULL), right_child_(NULL) {}
   // Node(const char ch, Node *lc, Node *rc) : ch_(), left_child_(lc),
   // right_child_(rc) {} void SetLeftChild(Node *lc) { left_child_ = lc; } void
   // SetRightChild(Node *rc) { right_child_ = rc; }
 };
 string PreOrder(Node *root) {
   string out_s;
-  while (root != NULL) {
+  if (root != NULL) {
     out_s += root->ch_;
     out_s += PreOrder(root->left_child_);
     out_s += PreOrder(root->right_child_);
@@ -92,7 +92,7 @@ string PreOrder(Node *root) {
 }
 string InOrder(Node *root) {
   string out_s;
-  while (root != NULL) {
+  if (root != NULL) {
     out_s += PreOrder(root->left_child_);
     out_s += root->ch_;
     out_s += PreOrder(root->right_child_);
@@ -101,7 +101,7 @@ string InOrder(Node *root) {
 }
 string PostOrder(Node *root) {
   string out_s;
-  while (root != NULL) {
+  if (root != NULL) {
     out_s += PreOrder(root->left_child_);
     out_s += PreOrder(root->right_child_);
     out_s += root->ch_;
@@ -120,22 +120,24 @@ int main() {
       int depth = s.size() - 1;
       Node *temp;
       if (depth == 0) {
-        root = new Node(s.at(s.size() - 1));
+        root = new Node(s[depth]);
         level[0] = root;
       } else {
-        if (s.at(s.size() - 1) != '*') {
-          temp = new Node(s.at(s.size() - 1));
-          if (level[depth - 1]->left_child_ == NULL)
-            level[depth - 1]->left_child_ = temp;
-          else
-            level[depth - 1]->right_child_ = temp;
-          level[depth] = temp;
+        temp = new Node(s[depth]);
+        if (level[depth - 1]->left_child_ == NULL)
+          level[depth - 1]->left_child_ = temp;
+        else {
+          level[depth - 1]->right_child_ = temp;
+          if (level[depth - 1]->left_child_->ch_ == '*')
+          level[depth - 1]->left_child_ = NULL;
         }
+        level[depth] = temp;
       }
     }
     cout << PreOrder(root) << endl;
     cout << InOrder(root) << endl;
     cout << PostOrder(root) << endl;
+    cout << endl;
   }
 
   return 0;
