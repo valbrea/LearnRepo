@@ -58,12 +58,15 @@ public:
   int current_size_;
   int maxsize_;
 
-  Minheap(const int maxsize) : maxsize_(maxsize) {}
-  virtual ~Minheap(){delete[] heap_array_};
+  Minheap(const int maxsize)
+      : heap_array_(), current_size_(0), maxsize_(maxsize) {
+        heap_array_ = new T[maxsize_];
+      }
+  virtual ~Minheap() { delete[] heap_array_; };
 
   int Parent(int pos) { return ((pos - 1) / 2); }
   bool InsertElem(const T &elem);
-  int DeleteMinElem();
+  T DeleteMinElem();
   void ShiftUp(int pos);
   void ShiftDown(int pos);
 };
@@ -76,15 +79,19 @@ int main() {
     int n;
     cin >> n;
     cin.ignore();
+    Minheap<int> min_heap(n);
     while (n--) {
       int type, u;
-      cin >> type >> u;
+      cin >> type;
       switch (type) {
       case 1:
-        HeapInsertElem(u);
+        cin >> u;
+        cin.ignore();
+        min_heap.InsertElem(u);
         break;
       case 2:
-        HeapDeleteMinElem();
+        cin.ignore();
+        cout << min_heap.DeleteMinElem() << endl;
         break;
 
       default:
@@ -95,10 +102,11 @@ int main() {
 
   return 0;
 }
+
 template <typename T> void Minheap<T>::ShiftUp(int pos) {
   int temp_pos = pos;
   T temp = heap_array_[temp_pos];
-  while ((temp_pos > 0) && (heap_array_[Parent(temp_pos) > temp])) {
+  while ((temp_pos > 0) && (heap_array_[Parent(temp_pos)] > temp)) {
     heap_array_[temp_pos] = heap_array_[Parent(temp_pos)];
     temp_pos = Parent(temp_pos);
   }
@@ -118,7 +126,8 @@ template <typename T> void Minheap<T>::ShiftDown(int pos) {
     } else
       break; // 到了叶层
   }
-  heap_array_[i] = temp; // 如果当前层temp < 当前j的关键值（即大于i的所有叶节点)，
+  heap_array_[i] =
+      temp; // 如果当前层temp < 当前j的关键值（即大于i的所有叶节点)，
             // 当前层i = temp;
 }
 template <typename T> bool Minheap<T>::InsertElem(const T &elem) {
@@ -128,4 +137,10 @@ template <typename T> bool Minheap<T>::InsertElem(const T &elem) {
   ShiftUp(current_size_);
   ++current_size_;
   return true;
+}
+template <typename T> T Minheap<T>::DeleteMinElem() {
+  T min_elem = heap_array_[0];
+  heap_array_[0] = heap_array_[--current_size_];
+  ShiftDown(0);
+  return min_elem;
 }
