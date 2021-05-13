@@ -93,17 +93,17 @@ string PreOrder(Node *root) {
 string InOrder(Node *root) {
   string out_s;
   if (root != NULL) {
-    out_s += PreOrder(root->left_child_);
+    out_s += InOrder(root->left_child_);
     out_s += root->ch_;
-    out_s += PreOrder(root->right_child_);
+    out_s += InOrder(root->right_child_);
   }
   return out_s;
 }
 string PostOrder(Node *root) {
   string out_s;
   if (root != NULL) {
-    out_s += PreOrder(root->left_child_);
-    out_s += PreOrder(root->right_child_);
+    out_s += PostOrder(root->left_child_);
+    out_s += PostOrder(root->right_child_);
     out_s += root->ch_;
   }
   return out_s;
@@ -129,14 +129,14 @@ int main() {
         else {
           level[depth - 1]->right_child_ = temp;
           if (level[depth - 1]->left_child_->ch_ == '*')
-          level[depth - 1]->left_child_ = NULL;
+            level[depth - 1]->left_child_ = NULL;
         }
         level[depth] = temp;
       }
     }
     cout << PreOrder(root) << endl;
-    cout << InOrder(root) << endl;
     cout << PostOrder(root) << endl;
+    cout << InOrder(root) << endl;
     cout << endl;
   }
 

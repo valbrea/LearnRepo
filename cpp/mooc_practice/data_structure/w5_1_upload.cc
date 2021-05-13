@@ -73,8 +73,9 @@ int main() {
   }
   tree pre_order;
   PreOrder(in_order, post_order, pre_order);
-  for(int e: pre_order)
-    cout << e << " ";
+  tree::iterator ii;
+  for(ii = pre_order.begin(); ii != pre_order.end(); ++ii)
+    cout << *ii << " ";
   cout << endl;
 
   return 0;
