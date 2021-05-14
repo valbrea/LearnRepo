@@ -33,7 +33,15 @@ Li:根节点到第i个外部叶子节点的距离。
 #include <algorithm>
 #include <iostream>
 using namespace std;
-
+int WeightSum(int *w, int n) {
+  if (n == 1)
+    return 0;
+  else {
+    sort(w, w + n, greater<int>());
+    w[n - 2] +=  w[n - 1];
+    return w[n - 2] + WeightSum(w, n - 1);
+  }
+}
 int main() {
   int n;
   cin >> n;
@@ -41,15 +49,7 @@ int main() {
   int *weight = new int[n];
   for (int i(0); i < n; ++i)
     cin >> weight[i];
-  while () {
-    sort(weight, weight + n);
-  }
+  cout << WeightSum(weight, n) << endl;
 
-  int depth = 0;
-  int min1, min2;
-  min1 = weight[0];
-  min2 = weight[1];
-  weight
-
-      return 0;
+  return 0;
 }
