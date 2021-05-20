@@ -71,19 +71,36 @@ public:
   TreeNode(char label, int degree)
       : label_(label), degree_(degree), lchild_(NULL), rsibling_(NULL) {}
 };
-void BuildTree(TreeNode *root) {
+void BuildTree(queue<TreeNode *> *queue_tree) {
   char label;
   int degree;
-  queue<TreeNode *> queue_tree;
-  TreeNode *cur = root;
-  while (cin >> label >> degree) {
-    while (cur) {
-      queue_tree.push(cur);
-      cur = cur->rsibling_;
+  while (!queue_tree->empty()) {
+    TreeNode *cur = queue_tree->front();
+    queue_tree->pop();
+    TreeNode *parent = cur;
+    TreeNode *temp = NULL;
+    for (int i = 0; i < parent->degree_; ++i) {
+      cin >> label >> degree;
+      temp = new TreeNode(label, degree);
+      if (degree != 0)
+        queue_tree->push(temp);
+      if (i == 0) {
+        cur->lchild_ = temp;
+        cur = cur->lchild_;
+      } else {
+        cur->rsibling_ = temp;
+        cur = cur->rsibling_;
+      }
     }
   }
 }
-
+void PostRootOrder(TreeNode *root) {
+  while (root) {
+    PostRootOrder(root->lchild_);
+    cout << root->label_ << " ";
+    root = root->rsibling_;
+  }
+}
 int main() {
 #ifdef LOCAL
   freopen(".debug/data.in", "r", stdin);
@@ -95,14 +112,19 @@ int main() {
   char r_label;
   int r_degree;
   TreeNode *root;
+  queue<TreeNode *> *queue_tree = new queue<TreeNode *>[2];
   while (n--) {
     cin >> r_label >> r_degree;
     root = new TreeNode(r_label, r_degree);
-    BuildTree(root);
+    queue_tree->push(root);
+    BuildTree(queue_tree);
+    PostRootOrder(root);
+    ++queue_tree;
   }
 
 #ifdef LOCAL
-  cout << endl << "Runtime: " << (double)clock() / CLOCKS_PER_SEC << "s\n";
+  cout << endl
+       << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
 #endif
 
   return 0;

@@ -6,9 +6,9 @@
 
 描述
 一棵树的镜面映射指的是对于树中的每个结点，都将其子结点反序。例如，对左边的树，镜面映射后变成右边这棵树。
-    a                                              a 
+    a                                              a
 /   |   \                                      /   |   \
-b   c   f                ===>                 f    c   b    
+b   c   f                ===>                 f    c   b
   /   \                                          /   \
 d       e                                      e       d
 我们在输入输出一棵树的时候，常常会把树转换成对应的二叉树，而且对该二叉树中只有单个子结点的分支结点补充一个虚子结点“$”，形成“伪满二叉树”。
@@ -49,3 +49,60 @@ a f c b e d
 提示
 样例输入输出对应着题目描述中的树。
 */
+#define LOCAL // 本地调试宏定义，提交代码时注释掉此行
+#define STL   // STL库，不用时注释掉此行
+#define INF 0x3f3f3f3f
+#define INF_LL 0x3f3f3f3f3f3f3f3f
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <string>
+#ifdef STL
+#include <algorithm>
+#include <deque>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+#include <stack>
+#include <vector>
+#endif
+
+using namespace std;
+typedef long long ll;
+
+class TreeNode {
+public:
+  char label_;
+  int is_leaf_;
+  TreeNode *lchild_;
+  TreeNode *rsibling_;
+  TreeNode() : label_('$'), is_leaf_(0), lchild_(NULL), rsibling_(NULL) {}
+  TreeNode(char label, int is_leaf)
+      : label_(label), is_leaf_(is_leaf), lchild_(NULL), rsibling_(NULL) {}
+};
+int main() {
+#ifdef LOCAL
+  freopen(".debug/data.in", "r", stdin);
+#endif
+
+  int node_num;
+  cin >> node_num;
+  TreeNode *root;
+  while (node_num--) {
+    char a, b;
+    cin >> a >> b;
+    root = new TreeNode(a, int(b - '0'));
+    while (cin >> a >> b)
+      ;
+  }
+
+#ifdef LOCAL
+  cout << endl
+       << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
+#endif
+
+  return 0;
+}
