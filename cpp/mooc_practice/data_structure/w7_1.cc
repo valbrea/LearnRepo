@@ -66,12 +66,12 @@ public:
   char label_;
   int degree_;
   TreeNode *lchild_;
-  TreeNode *rsibling_;
-  TreeNode() : label_(), degree_(0), lchild_(NULL), rsibling_(NULL) {}
+  TreeNode *rchild_;
+  TreeNode() : label_(), degree_(0), lchild_(NULL), rchild_(NULL) {}
   TreeNode(char label, int degree)
-      : label_(label), degree_(degree), lchild_(NULL), rsibling_(NULL) {}
+      : label_(label), degree_(degree), lchild_(NULL), rchild_(NULL) {}
 };
-void BuildTree(queue<TreeNode *> *queue_tree) {
+void BfsBuildTree(queue<TreeNode *> *queue_tree) {
   char label;
   int degree;
   while (!queue_tree->empty()) {
@@ -88,8 +88,8 @@ void BuildTree(queue<TreeNode *> *queue_tree) {
         cur->lchild_ = temp;
         cur = cur->lchild_;
       } else {
-        cur->rsibling_ = temp;
-        cur = cur->rsibling_;
+        cur->rchild_ = temp;
+        cur = cur->rchild_;
       }
     }
   }
@@ -98,7 +98,7 @@ void PostRootOrder(TreeNode *root) {
   while (root) {
     PostRootOrder(root->lchild_);
     cout << root->label_ << " ";
-    root = root->rsibling_;
+    root = root->rchild_;
   }
 }
 int main() {
@@ -117,7 +117,7 @@ int main() {
     cin >> r_label >> r_degree;
     root = new TreeNode(r_label, r_degree);
     queue_tree->push(root);
-    BuildTree(queue_tree);
+    BfsBuildTree(queue_tree);
     PostRootOrder(root);
     ++queue_tree;
   }

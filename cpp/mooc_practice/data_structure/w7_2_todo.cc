@@ -73,16 +73,40 @@ a f c b e d
 using namespace std;
 typedef long long ll;
 
-class TreeNode {
+class BinaryTreeNode {
 public:
   char label_;
   int is_leaf_;
-  TreeNode *lchild_;
-  TreeNode *rsibling_;
-  TreeNode() : label_('$'), is_leaf_(0), lchild_(NULL), rsibling_(NULL) {}
-  TreeNode(char label, int is_leaf)
-      : label_(label), is_leaf_(is_leaf), lchild_(NULL), rsibling_(NULL) {}
+  BinaryTreeNode *lchild_;
+  BinaryTreeNode *rchild_;
+  BinaryTreeNode() : label_('$'), is_leaf_(0), lchild_(NULL), rchild_(NULL) {}
+  BinaryTreeNode(char label, int is_leaf)
+      : label_(label), is_leaf_(is_leaf), lchild_(NULL), rchild_(NULL) {}
 };
+void PreOrderBuildBinaryTree(BinaryTreeNode *root) {
+  char label;
+  int is_leaf;
+  stack<BinaryTreeNode *> stack_binary_tree;
+  stack_binary_tree.push(NULL); // 监视哨
+  BinaryTreeNode *cur = root;
+  while (cur && cin >> label >> is_leaf) {
+    BinaryTreeNode *temp = new BinaryTreeNode(label, is_leaf);
+    switch (cur->is_leaf_) {
+    case 0: // 内部节点
+      stack_binary_tree.push(cur);
+      if (!cur->lchild_) {
+        cur->lchild_ = temp;
+        cur = cur->lchild_;
+      } else {
+        cur = stack_binary_tree.top();
+        stack_binary_tree.pop();
+      }
+      break;
+    default: // 叶节点
+      break;
+    }
+  }
+}
 int main() {
 #ifdef LOCAL
   freopen(".debug/data.in", "r", stdin);
@@ -90,14 +114,12 @@ int main() {
 
   int node_num;
   cin >> node_num;
-  TreeNode *root;
-  while (node_num--) {
-    char a, b;
-    cin >> a >> b;
-    root = new TreeNode(a, int(b - '0'));
-    while (cin >> a >> b)
-      ;
-  }
+  BinaryTreeNode *root;
+  char r_label;
+  int r_is_leaf;
+  cin >> r_label >> r_is_leaf;
+  root = new BinaryTreeNode(r_label, r_is_leaf);
+  PreOrderBuildBinaryTree(root);
 
 #ifdef LOCAL
   cout << endl
