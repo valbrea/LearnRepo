@@ -89,22 +89,66 @@ void PreOrderBuildBinaryTree(BinaryTreeNode *root) {
   stack<BinaryTreeNode *> stack_binary_tree;
   stack_binary_tree.push(NULL); // 监视哨
   BinaryTreeNode *cur = root;
-  while (cur && cin >> label >> is_leaf) {
-    BinaryTreeNode *temp = new BinaryTreeNode(label, is_leaf);
+  BinaryTreeNode *temp;
+  while (cur) {
     switch (cur->is_leaf_) {
     case 0: // 内部节点
-      stack_binary_tree.push(cur);
+      cin >> label >> is_leaf;
+      temp = new BinaryTreeNode(label, is_leaf);
       if (!cur->lchild_) {
+        stack_binary_tree.push(cur);
         cur->lchild_ = temp;
         cur = cur->lchild_;
       } else {
-        cur = stack_binary_tree.top();
-        stack_binary_tree.pop();
+        cur->rchild_ = temp;
+        cur = cur->rchild_;
       }
       break;
     default: // 叶节点
+      cur = stack_binary_tree.top();
+      stack_binary_tree.pop();
       break;
     }
+  }
+}
+void MirrorBfsPrintTree(BinaryTreeNode *root) {
+  // 思路见：https://blog.csdn.net/melanieecd/article/details/71122168
+  stack<BinaryTreeNode *> bfs_stack;
+  queue<BinaryTreeNode *> bfs_queue;
+  BinaryTreeNode *cur = root;
+  while (cur && cur->label_ != '$') {
+    bfs_stack.push(cur);
+    cur = cur->rchild_;
+  }
+  while (!bfs_stack.empty()) {
+    cur = bfs_stack.top();
+    cout << cur->label_ << " ";
+    bfs_queue.push(cur);
+    bfs_stack.pop();
+  }
+  while (!bfs_queue.empty()) {
+    cur = bfs_queue.front();
+    bfs_queue.pop();
+    if (cur->lchild_)
+      MirrorBfsPrintTree(cur->lchild_);
+    
+  }
+}
+void BfsPrint(BinaryTreeNode *root) {
+  queue<BinaryTreeNode *> bfs_queue;
+  bfs_queue.push(root);
+  BinaryTreeNode *cur;
+  while (!bfs_queue.empty()) {
+    cur = bfs_queue.front();
+    bfs_queue.pop();
+    if (cur->label_ != '$')
+      cout << cur->label_ << " ";
+    else
+      continue;
+    if (cur->lchild_)
+      bfs_queue.push(cur->lchild_);
+    if (cur->rchild_)
+      bfs_queue.push(cur->rchild_);
   }
 }
 int main() {
@@ -120,7 +164,7 @@ int main() {
   cin >> r_label >> r_is_leaf;
   root = new BinaryTreeNode(r_label, r_is_leaf);
   PreOrderBuildBinaryTree(root);
-
+  MirrorBfsPrintTree(root);
 #ifdef LOCAL
   cout << endl
        << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
