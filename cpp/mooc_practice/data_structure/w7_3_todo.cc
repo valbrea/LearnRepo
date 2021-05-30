@@ -73,7 +73,15 @@
 
 using namespace std;
 typedef long long ll;
-
+struct ParentTree {
+  ParentTree *parent_;
+  int number_;
+  ParentTree(int number) : parent_(NULL), number_(number) {}
+};
+void Find(int x, int y) {
+  ParentTree *xx = new ParentTree(x);
+  ParentTree *yy = new ParentTree(y);
+}
 int main() {
 #ifdef LOCAL
   freopen(".debug/data.in", "r", stdin);
@@ -82,9 +90,25 @@ int main() {
   int n, k;  
   cin >> n >> k;
   int d, x ,y;
+  int lie = 0;
   while (k--) {
     // d:说法的种类， 1，x和y是同类，否则是x吃y
     cin >> d >> x >> y;
+    // 条件2）
+    if(x <= 0 || x > n || y <= 0 || y > n) {
+      ++lie;
+      continue;
+    }
+    switch (d)
+    {
+    case 1:
+      Find(x, y);
+      break;
+    
+    default:
+      break;
+    }
+       
 
   }
 
