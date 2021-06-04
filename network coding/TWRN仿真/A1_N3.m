@@ -1,4 +1,4 @@
-function [] = A1_n3(SNR, slot)
+function [throughput] = A1_N3(SNR, slot)
 % 输入为SNR_dB和总的仿真时隙数
 n = 3;
 % 数据包大小
@@ -67,12 +67,14 @@ for time = 1:slot
                 cache_T4 = BPSK(SNR, PB_C3);
                 T_receive = XOR(cache_T4, PB_T4(1, :));
                 % (5.2) 如果非空就递交上层判断
-                if ~isequal(T_receive, empty)
+                % 在 n + 1时刻以后T节点才会收到包
+                if time >= (n + 1) && ~isequal(T_receive, empty)
                     output = output + 1;
                     if isequal(T_receive, H_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
                         valid = valid + 1;
                     end
+                    % if ~isempty(H_sent)
                     H_sent(1, :) = [];
                 end
                 % (5.3)弹出PB第一个包
@@ -92,7 +94,8 @@ for time = 1:slot
                 cache_H0 = BPSK(SNR, PB_A1);
                 H_receive = XOR(cache_H0, PB_H0(1, :));
                 % (5.2) 如果非空就递交上层判断
-                if ~isequal(H_receive, empty)
+                % 在Tr = 2n + mod(n + 1, 3) + 1开始，H0节点才开始收到包，前面收到的都是回传信息
+                if time >= (2 * n + mod(n + 1, 3) + 1) && ~isequal(H_receive, empty)
                     output = output + 1;
                     if isequal(H_receive, T_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
@@ -138,8 +141,9 @@ end
 % trecive=trecive(:,2:t);
 % delay=[trecive-hsend,hrecive-tsend];
 % delay=mean(delay(:))+1;
-figure, hold on;
-plot(throughput, 'r');
-plot(valid_throughput, 'b');
-xlabel('timeslot'), ylabel('throughput');
+
+% figure, hold on;
+% plot(throughput, 'r');
+% plot(valid_throughput, 'b');
+% xlabel('timeslot'), ylabel('throughput');
 end
