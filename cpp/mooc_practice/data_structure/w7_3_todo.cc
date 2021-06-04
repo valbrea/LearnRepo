@@ -73,19 +73,38 @@
 
 using namespace std;
 typedef long long ll;
-
+struct Node{
+  int parent_;
+  int relationship_;
+} node[50001];
+void InitNode(int n) {
+  for (int i(1); i <= n; ++i) {
+    node[i].parent_ = i;  // 初始化时集合编号设为自身
+    node[i].relationship_ = 0; // 自己和自己的关系是同类
+    // relationship_ = 0 ---- 同类
+    // relationship_ = 1 ---- 被根节点吃
+    // relationship_ = 2 ---- 吃根节点
+  }
+}
+int Find(int x) {
+  
+}
 int main() {
 #ifdef LOCAL
-  freopen(".debug/data.in", "r", stdin);
+  freopen(".debug/w7_3.in", "r", stdin);
 #endif
-
+  // 思路见：https://blog.csdn.net/niushuai666/article/details/6981689
   int n, k;  
   cin >> n >> k;
-  int d, x ,y;
+  int d, x, y;
+  int error = 0;
   while (k--) {
-    // d:说法的种类， 1，x和y是同类，否则是x吃y
+    // d:说法的种类， 1，x和y是同类，2是x吃y
     cin >> d >> x >> y;
-
+    if (x > n || y > n)
+      error++;
+    if (x == y && d == 2)
+      error++;
   }
 
 #ifdef LOCAL
