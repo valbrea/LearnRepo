@@ -49,8 +49,8 @@ a f c b e d
 提示
 样例输入输出对应着题目描述中的树。
 */
-#define LOCAL // 本地调试宏定义，提交代码时注释掉此行
-#define STL   // STL库，不用时注释掉此行
+// #define LOCAL // 本地调试宏定义，提交代码时注释掉此行
+#define STL // STL库，不用时注释掉此行
 #define INF 0x3f3f3f3f
 #define INF_LL 0x3f3f3f3f3f3f3f3f
 #include <cmath>
@@ -131,7 +131,6 @@ void MirrorBfsPrintTree(BinaryTreeNode *root) {
     bfs_queue.pop();
     if (cur->lchild_)
       MirrorBfsPrintTree(cur->lchild_);
-    
   }
 }
 void BfsPrint(BinaryTreeNode *root) {
@@ -153,11 +152,12 @@ void BfsPrint(BinaryTreeNode *root) {
 }
 int main() {
 #ifdef LOCAL
-  freopen(".debug/data.in", "r", stdin);
+  freopen(".debug/w7_2.in", "r", stdin);
 #endif
 
   int node_num;
   cin >> node_num;
+  cin.ignore();
   BinaryTreeNode *root;
   char r_label;
   int r_is_leaf;

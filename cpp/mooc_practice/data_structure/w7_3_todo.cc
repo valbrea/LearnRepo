@@ -73,6 +73,7 @@
 
 using namespace std;
 typedef long long ll;
+<<<<<<< HEAD
 struct ParentTree {
   ParentTree *parent_;
   int number_;
@@ -81,19 +82,42 @@ struct ParentTree {
 void Find(int x, int y) {
   ParentTree *xx = new ParentTree(x);
   ParentTree *yy = new ParentTree(y);
+=======
+struct Node{
+  int parent_;
+  int relationship_;
+} node[50001];
+void InitNode(int n) {
+  for (int i(1); i <= n; ++i) {
+    node[i].parent_ = i;  // 初始化时集合编号设为自身
+    node[i].relationship_ = 0; // 自己和自己的关系是同类
+    // relationship_ = 0 ---- 同类
+    // relationship_ = 1 ---- 被根节点吃
+    // relationship_ = 2 ---- 吃根节点
+  }
+}
+int Find(int x) {
+  
+>>>>>>> 8d1f0f43fcc88484f58f492942d2b740d3bb1f56
 }
 int main() {
 #ifdef LOCAL
-  freopen(".debug/data.in", "r", stdin);
+  freopen(".debug/w7_3.in", "r", stdin);
 #endif
-
+  // 思路见：https://blog.csdn.net/niushuai666/article/details/6981689
   int n, k;  
   cin >> n >> k;
+<<<<<<< HEAD
   int d, x ,y;
   int lie = 0;
+=======
+  int d, x, y;
+  int error = 0;
+>>>>>>> 8d1f0f43fcc88484f58f492942d2b740d3bb1f56
   while (k--) {
-    // d:说法的种类， 1，x和y是同类，否则是x吃y
+    // d:说法的种类， 1，x和y是同类，2是x吃y
     cin >> d >> x >> y;
+<<<<<<< HEAD
     // 条件2）
     if(x <= 0 || x > n || y <= 0 || y > n) {
       ++lie;
@@ -110,6 +134,12 @@ int main() {
     }
        
 
+=======
+    if (x > n || y > n)
+      error++;
+    if (x == y && d == 2)
+      error++;
+>>>>>>> 8d1f0f43fcc88484f58f492942d2b740d3bb1f56
   }
 
 #ifdef LOCAL

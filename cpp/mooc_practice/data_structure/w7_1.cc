@@ -38,8 +38,8 @@ D 2 X 0 I 0
 K H J E F G C X I D
 
 */
-#define LOCAL // 本地调试宏定义，提交代码时注释掉此行
-#define STL   // STL库，不用时注释掉此行
+// #define LOCAL // 本地调试宏定义，提交代码时注释掉此行
+#define STL // STL库，不用时注释掉此行
 #define INF 0x3f3f3f3f
 #define INF_LL 0x3f3f3f3f3f3f3f3f
 #include <cmath>
@@ -66,30 +66,39 @@ public:
   char label_;
   int degree_;
   TreeNode *lchild_;
-  TreeNode *rchild_;
-  TreeNode() : label_(), degree_(0), lchild_(NULL), rchild_(NULL) {}
+  TreeNode *rsibling_;
+  TreeNode() : label_(), degree_(0), lchild_(NULL), rsibling_(NULL) {}
   TreeNode(char label, int degree)
-      : label_(label), degree_(degree), lchild_(NULL), rchild_(NULL) {}
+      : label_(label), degree_(degree), lchild_(NULL), rsibling_(NULL) {}
 };
-void BfsBuildTree(queue<TreeNode *> *queue_tree) {
+void BfsBuildTree(TreeNode *&root) {
   char label;
   int degree;
-  while (!queue_tree->empty()) {
-    TreeNode *cur = queue_tree->front();
-    queue_tree->pop();
+  // 根节点信息
+  cin >> label >> degree;
+  root = new TreeNode(label, degree);
+  queue<TreeNode *> q_tree;
+  q_tree.push(root);
+  // 层序遍历建树
+  while (!q_tree.empty()) {
+    TreeNode *cur = q_tree.front();
+    q_tree.pop();
     TreeNode *parent = cur;
     TreeNode *temp = NULL;
     for (int i = 0; i < parent->degree_; ++i) {
       cin >> label >> degree;
       temp = new TreeNode(label, degree);
       if (degree != 0)
-        queue_tree->push(temp);
-      if (i == 0) {
+      // 如果当前节点度数为0就入队
+        q_tree.push(temp);
+      if (i == 0) { 
+        // 第一个作为parent的左孩子
         cur->lchild_ = temp;
         cur = cur->lchild_;
       } else {
-        cur->rchild_ = temp;
-        cur = cur->rchild_;
+        // 其余i-1个节点作为右兄弟
+        cur->rsibling_ = temp;
+        cur = cur->rsibling_;
       }
     }
   }
@@ -98,28 +107,21 @@ void PostRootOrder(TreeNode *root) {
   while (root) {
     PostRootOrder(root->lchild_);
     cout << root->label_ << " ";
-    root = root->rchild_;
+    root = root->rsibling_;
   }
 }
 int main() {
 #ifdef LOCAL
-  freopen(".debug/data.in", "r", stdin);
+  freopen(".debug/w7_1.in", "r", stdin);
 #endif
 
   int n;
   cin >> n;
   cin.ignore();
-  char r_label;
-  int r_degree;
-  TreeNode *root;
-  queue<TreeNode *> *queue_tree = new queue<TreeNode *>[2];
   while (n--) {
-    cin >> r_label >> r_degree;
-    root = new TreeNode(r_label, r_degree);
-    queue_tree->push(root);
-    BfsBuildTree(queue_tree);
+    TreeNode *root;
+    BfsBuildTree(root);
     PostRootOrder(root);
-    ++queue_tree;
   }
 
 #ifdef LOCAL
