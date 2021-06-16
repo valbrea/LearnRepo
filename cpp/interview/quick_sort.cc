@@ -4,22 +4,22 @@ void QuickSort(int a[], int low, int high) {
   if (low < high) {
     int i = low;
     int j = high;
-    int index = a[i];
+    int mid = a[i];
     while (i < j) {
-      // 从右往左扫描，找比基准大的元素
-      while (i < j && a[j] >= index)
+      // 从右往左扫描，找比基准小的元素
+      while (i < j && a[j] >= mid)
         --j;
       // 找到后交换
       if (i < j)
         a[i++] = a[j];
-      // 从左往右扫，找比基准小的元素
-      while (i < j && a[i] < index)
+      // 从左往右扫，找比基准大的元素
+      while (i < j && a[i] < mid)
         ++i;
       // 找到后交换
       if (i < j)
         a[j--] = a[i];
     }
-    a[i] = index;
+    a[i] = mid;
     QuickSort(a, low, i - 1);
     QuickSort(a, i + 1, high);
   } else {
