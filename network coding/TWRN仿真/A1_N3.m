@@ -1,4 +1,4 @@
-function [throughput] = A1_N3(SNR, slot)
+function [throughput, FER] = A1_N3(SNR, slot)
 % 输入为SNR_dB和总的仿真时隙数
 n = 3;
 % 数据包大小
@@ -29,6 +29,7 @@ T = data_bits / prate; % 发送一次数据包所需时间
 
 output = 0; % 总接收到的数据包数量
 valid = 0;  % 有效输出的数据包数量
+error = 0;  % 错误的数据包数量
 % 接收缓存
 cache_A1 = zeros(1, data_bits);
 cache_B2 = zeros(1, data_bits);
@@ -73,12 +74,14 @@ for time = 1:slot
                     if isequal(T_receive, H_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
                         valid = valid + 1;
+                    else
+                        error = error + 1;
                     end
                     % if ~isempty(H_sent)
                     H_sent(1, :) = [];
                 end
                 % (5.3)弹出PB第一个包
-                T_sent(end + 1, :) = PB_T4(1, :); % 记录发送过的每个包
+                T_sent(end + 1, :) = PB_T4(1, :); % 记录发送过的每个包y1,y2,y3...
                 PB_T4(1, :) = []; % 弹出PB第一个
                 TB_T4 = XOR(PB_T4(1, :), T_receive);
             end
@@ -100,11 +103,13 @@ for time = 1:slot
                     if isequal(H_receive, T_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
                         valid = valid + 1;
+                    else
+                        error = error + 1;
                     end
                     T_sent(1, :) = [];
                 end
                 % (5.3)弹出PB第一个包
-                H_sent(end + 1, :) = PB_H0(1, :); % 记录发送过的每个包
+                H_sent(end + 1, :) = PB_H0(1, :); % 记录发送过的每个包x1,x2,x3...
                 PB_H0(1, :) = [];
                 TB_H0 = XOR(PB_H0(1, :), H_receive);
             end
@@ -133,7 +138,8 @@ for time = 1:slot
     throughput(time) = output / time; % 吞吐量
     valid_throughput(time) = valid / time;  % 有效吞吐量
 end
-% h=length(hrecive);
+FER = error ./ output;
+% h=length(hrecive);0
 % t=length(trecive);
 % hsend=hsend(:,2:t);
 % hrecive=hrecive(:,2:h);
@@ -142,8 +148,8 @@ end
 % delay=[trecive-hsend,hrecive-tsend];
 % delay=mean(delay(:))+1;
 
-% figure, hold on;
-% plot(throughput, 'r');
-% plot(valid_throughput, 'b');
-% xlabel('timeslot'), ylabel('throughput');
+figure, hold on;
+plot(throughput, 'r');
+plot(valid_throughput, 'b');
+xlabel('timeslot'), ylabel('throughput');
 end

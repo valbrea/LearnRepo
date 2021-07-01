@@ -10,7 +10,7 @@ A1_valid_mean = zeros(1, slot);
 DFNC3_valid_mean = zeros(1, slot);
 SNC3_valid_mean = zeros(1, slot);
 for i = 1 : 1 : loop
-    A1_valid_throughput(i, :) = A1_N3(SNR, slot);
+    [A1_valid_throughput(i, :), ~] = A1_N3(SNR, slot);
     DFNC3_valid_throughput(i, :) = DFNC3(SNR, slot);
     SNC3_valid_throughput(i, :) = SNC3(SNR, slot);
 end
