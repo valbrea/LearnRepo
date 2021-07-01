@@ -3,7 +3,7 @@ function [] = A2_N3(SNR, slot)
 % 输入为SNR_dB和总的仿真时隙数
 n = 3;
 % 数据包大小
-data_bits=100;
+data_bits=10;
 % 每个节点的初始数据为空
 % PB
 PB_A1 = zeros(2, data_bits);
@@ -21,16 +21,12 @@ T_receive = zeros(1,data_bits);
 % 发送包的期望
 H_sent = [];
 T_sent = [];
-% 左右ACK 1正常0失败
-ack_H0_A1 = 1;
-ack_A1_H0 = 1;
-ack_A1_B2 = 1;
-ack_B2_A1 = 1;
-ack_B2_C3 = 1;
-ack_C3_B2 = 1;
-ack_C3_T4 = 1;
-ack_T4_C3 = 1;
-
+% 节点发包状态 0正常 1右传失败 2左传失败 3全失败
+flag_H0 = 0;
+flag_A1 = 0;
+flag_B2 = 0;
+flag_C3 = 0;
+flag_T4 = 0;
 % 其余数据
 empty = zeros(1, data_bits);
 prate = 11 * 10 ^ 6;   % 物理链路层速率
@@ -64,6 +60,7 @@ for time = 1:slot
                     cache_A1 = BPSK(SNR, TB_H0);
                     ack_H0_A1 = ACK(cache_A1, TB_H0);
                     if ack_H0_A1 == 1 % 传输成功
+                        H_sent(end + 1, :) = PB_H0(1, :); % 记录发送过的每个包x1,x2,x3...
                         if ack_A1_B2 == 0 % 如果A1节点在往B重传的状态中
                             PB_A1(end, :) = cache_A1; % 存到PB末尾
                         else % 正常状态直接XOR到PB第一个
@@ -76,6 +73,7 @@ for time = 1:slot
                     cache_A1 = BPSK(SNR, PB_H0(1, :));
                     ack_H0_A1 = ACK(cache_A1, PB_H0(1, :));
                     if ack_H0_A1 == 1 % 传输成功
+                        H_sent(end + 1, :) = PB_H0(1, :); % 记录发送过的每个包x1,x2,x3...
                         if ack_A1_B2 == 0 % 如果A1节点在往B重传的状态中
                             PB_A1(end, :) = cache_A1; % 存到PB末尾
                         else % 正常状态直接XOR到PB第一个
@@ -131,7 +129,6 @@ for time = 1:slot
                     end
                     % (5.3)弹出PB第一个包
                     if ack_C3_T4 == 1 % 只有传输成功的时候才操作
-                        T_sent(end + 1, :) = PB_T4(1, :); % 记录发送过的每个包y1,y2,y3...
                         PB_T4(1, :) = []; % 弹出PB第一个
                         TB_T4 = XOR(PB_T4(1, :), T_receive);
                     end
@@ -142,7 +139,7 @@ for time = 1:slot
             % A向H和B传
             % 如果PB非空且上一个收信时隙收到了来自H0和B2的数据，C3才发包(rule33)
             if ~isequal(PB_A1(1, :), empty) 
-                if ack_H0_A1 == 1 && ack_B2_A1 ==1 
+                if ack_H0_A1 == 1 && ack_B2_A1 == 1 
                     % 传输过程是双向并发的
                     cache_B2 = BPSK(SNR, PB_A1(1, :));
                     cache_H0 = BPSK(SNR, PB_A1(1, :));
@@ -182,7 +179,6 @@ for time = 1:slot
                     end
                     % (5.3)弹出PB第一个包
                     if ack_A1_H0 == 1 % 只有传输成功的时候才操作
-                        H_sent(end + 1, :) = PB_H0(1, :); % 记录发送过的每个包x1,x2,x3...
                         PB_H0(1, :) = [];
                         TB_H0 = XOR(PB_H0(1, :), H_receive);
                     end
@@ -196,6 +192,7 @@ for time = 1:slot
                     cache_C3 = BPSK(SNR, TB_T4);
                     ack_T4_C3 = ACK(cache_C3, TB_T4);
                     if ack_T4_C3 == 1 % 传输成功
+                        T_sent(end + 1, :) = PB_T4(1, :); % 记录发送过的每个包y1,y2,y3...
                         if ack_C3_B2 == 0 % 如果C3节点在往B2重传的状态中
                             PB_C3(end, :) = cache_C3; % 存到PB末尾
                         else % 正常状态直接XOR到PB第一个
@@ -208,6 +205,7 @@ for time = 1:slot
                     cache_C3 =  BPSK(SNR, PB_T4(1, :));
                     ack_T4_C3 = ACK(cache_C3, PB_T4(1, :));
                     if ack_T4_C3 == 1 % 传输成功
+                        T_sent(end + 1, :) = PB_T4(1, :); % 记录发送过的每个包y1,y2,y3...
                         if ack_C3_B2 == 0 % 如果C3节点在往B2重传的状态中
                             PB_C3(end, :) = cache_C3; % 存到PB末尾
                         else % 正常状态直接XOR到PB第一个
@@ -221,32 +219,40 @@ for time = 1:slot
             % B向A和C传
             % 如果PB非空且上一个收信时隙收到了来自A1和C3的数据，C3才发包(rule33)
             if ~isequal(PB_B2(1, :), empty) % 如果PB非空 发包
-                if ack_A1_B2 == 1 && ack_C3_B2 ==1
-                    % 传输过程是双向并发的
-                    cache_A1 = BPSK(SNR, PB_B2(1, :));
-                    cache_C3 = BPSK(SNR, PB_B2(1, :));
-                    % 中继A1收包
-                    ack_B2_A1 = ACK(cache_A1, PB_B2(1, :));
-                    if ack_B2_A1 == 1 % 传输成功
-                        PB_B2(1, :) = XOR(PB_B2(1, :), PB_B2(end, :));
-                        PB_B2(end, :) = empty;
-                        if ack_A1_H0 == 0 % 如果A1节点在往H重传的状态中
-                           PB_A1(end, :) = cache_A1; % 存到PB末尾
-                        else % 正常状态直接XOR到PB第一个
-                           PB_A1(1, :) = XOR(PB_A1(1, :), cache_A1);
-                        end
-                    end % 传输失败的情况ack_B2_A1 = 0，会直接跳过这一时隙，直到下一个发送时隙
-                    % 中继C3收包
-                    ack_B2_C3 = ACK(cache_C3, PB_B2(1, :));
-                    if ack_B2_C3 == 1 % 传输成功
-                        PB_B2(1, :) = XOR(PB_B2(1, :), PB_B2(end, :));
-                        PB_B2(end, :) = empty;
-                        if ack_C3_T4 == 0 % 如果C3节点在往H重传的状态中
-                           PB_C3(end, :) = cache_C3; % 存到PB末尾
-                        else % 正常状态直接XOR到PB第一个
-                           PB_C3(1, :) = XOR(PB_C3(1, :), cache_C3);
-                        end
-                    end % 传输失败的情况ack_B2_C3 = 0，会直接跳过这一时隙，直到下一个发送时隙
+                % 如果两侧没有暂缓收包
+                if  flag_A1 == 0 && flag_C3 == 0 
+                    if flag_B2 == 1
+                        % 右侧重传
+                        [flag_B2, cache_C3] = TransRight(SNR, PB_B2(1, :));
+                    elseif flag_B2 == 2
+                        % 左侧重传
+                        [flag_B2, cache_A1] = TransLeft(SNR, PB_B2(1, :));
+                    else
+                        % 传输过程是双向并发的
+                        [flag_B2, cache_A1, cache_C3] = TransBi(SNR, PB_B2(1, :));
+                    end
+                end % 暂缓收包时直接直接不发
+                % 中继A1收包
+                if flag_B2 ~= 1 % 只要往A侧传了包
+                    if flag_A1 == 2 % 如果A1节点在往H重传的状态中
+                        PB_A1(end, :) = cache_A1; % 存到PB末尾
+                    else % 正常状态直接XOR到PB第一个
+                        PB_A1(1, :) = XOR(PB_A1(1, :), cache_A1);
+                    end
+                end % 传输失败的情况ack_B2_A1 = 0，会直接跳过这一时隙，直到下一个发送时隙
+                % 中继C3收包
+                if ack_B2_C3 == 1 % 传输成功
+                    if ack_C3_T4 == 0 % 如果C3节点在往H重传的状态中
+                        PB_C3(end, :) = cache_C3; % 存到PB末尾
+                    else % 正常状态直接XOR到PB第一个
+                        PB_C3(1, :) = XOR(PB_C3(1, :), cache_C3);
+                    end
+                end % 传输失败的情况ack_B2_C3 = 0，会直接跳过这一时隙，直到下一个发送时隙
+                if ack_B2_A1 == 1 && ack_B2_C3 == 1
+                    % 无论左重传还是右重传，只要最后重传成功以后，左右ack都应该是1，这时候就可以更新PB，并且取消暂缓接收的状态了
+                    PB_B2(1, :) = XOR(PB_B2(1, :), PB_B2(end, :));
+                    PB_B2(end, :) = empty;
+                    pause_B2 = 1;
                 end
             end
     end
