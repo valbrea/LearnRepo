@@ -150,7 +150,7 @@ for time = 1:slot
                 % 如果A往HB发了以后，收到了H和B的回传包，才可以开始下一次发送(rule 33)
                 if (flag_A1 == 0 || flag_A1 == 1) && (flag_H0 ~= 0)
                     flag_A1 = 4;
-                elseif (flag_A1 == 0 || flag_A1 == 2) && (flag_B2 == 2 || flag_B2 == 3 || flag_B2 == 4)
+                elseif (flag_A1 == 0 || flag_A1 == 2) && (flag_B2 ~= 0 || flag_B2 ~= 1)
                     flag_A1 = 4;
                 end
                 
@@ -214,7 +214,7 @@ for time = 1:slot
             else
                 cache_T4 = PB_T4(1, :);
             end
-            if flag_T4 == 0 && (flag_C3 == 1 || flag_C3 == 3 || flag_C3 == 4)
+            if flag_T4 == 0 && (flag_C3 ~= 0 || flag_C3 ~= 2)
                 flag_T4 = 4;
             end
             
@@ -239,9 +239,9 @@ for time = 1:slot
             % 如果PB非空
             if ~isequal(PB_B2(1, :), empty) % 如果PB非空 发包
                 % 如果B往AC发了以后，收到了A和C的回传包，才可以开始下一次发送(rule 33)
-                if (flag_B2 == 0 || flag_B2 == 1) && (flag_A1 == 1 || flag_A1 == 3 || flag_A1 == 4)
+                if (flag_B2 == 0 || flag_B2 == 1) && (flag_A1 ~= 0 || flag_A1 ~= 2)
                     flag_B2 = 4;
-                elseif (flag_B2 == 0 || flag_B2 == 2) && (flag_C3 == 2 || flag_C3 == 3 || flag_C3 == 4)
+                elseif (flag_B2 == 0 || flag_B2 == 2) && (flag_C3 ~= 0 || flag_C3 ~= 1)
                     flag_B2 = 4;
                 end
                 
