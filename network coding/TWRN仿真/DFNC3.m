@@ -1,4 +1,4 @@
-function [throughput] = DFNC3 (SNR, slot)
+function [valid_throughput, FER, delay] = DFNC3 (SNR, slot)
 data_bits=8472;
 R_1=randi([0,1],1,data_bits);
 R_2=zeros(1,data_bits);
@@ -153,9 +153,11 @@ for time=1:slot %·ÂÕæÊ±¼ä
                 end
            end    
     end
-    throughput(time) = output/(time+4);
+    valid_throughput(time) = output/(time+4);
+    % valid_throughput(time) = output/time;
 end
-
+FER = 0;
+% FER = error ./ output;
 number=length(tend);
 tbegin=tbegin(:,2:number);
 tend=tend(:,2:number);

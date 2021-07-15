@@ -1,8 +1,8 @@
-function [throughput, FER] = A1_N3(SNR, slot)
+function [throughput, valid_throughput, FER, delay] = A1_N3(SNR, slot)
 % 输入为SNR_dB和总的仿真时隙数
 n = 3;
 % 数据包大小
-data_bits=100;
+data_bits=8742;
 % 每个节点的初始数据为空
 % PB
 PB_A1 = zeros(1, data_bits);
@@ -30,17 +30,18 @@ T = data_bits / prate; % 发送一次数据包所需时间
 output = 0; % 总接收到的数据包数量
 valid = 0;  % 有效输出的数据包数量
 error = 0;  % 错误的数据包数量
+hsend = 0;
+tsend = 0;
+hrecive = 0;
+trecive = 0;
+
 % 接收缓存
 cache_A1 = zeros(1, data_bits);
 cache_B2 = zeros(1, data_bits);
 cache_C3 = zeros(1, data_bits);
 cache_H0 = zeros(1, data_bits);
 cache_T4 = zeros(1, data_bits);
-% hsend=0;
-% tsend=0;
-% hrecive=0;
-% trecive=0;
-% receive;
+
 for time = 1:slot
     
     % 由于matlab时间只能从1开始，所以论文里time = 0, 3, 6 时发包的节点为H0, C3，仿真里在type = 1时候发包
@@ -53,9 +54,11 @@ for time = 1:slot
                 % 如果TB非空就发TB
                 cache_A1 = BPSK(SNR, TB_H0);
                 PB_A1 = XOR(PB_A1, cache_A1);
+                hsend=[hsend,time];
             else
                 cache_A1 = BPSK(SNR, PB_H0(1, :));
                 PB_A1 = XOR(PB_A1, cache_A1);
+                hsend=[hsend,time];
             end
             %% 节点C3发送
             % C向B和T传
@@ -74,6 +77,7 @@ for time = 1:slot
                     if isequal(T_receive, H_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
                         valid = valid + 1;
+                        trecive=[trecive,time];
                     else
                         error = error + 1;
                     end
@@ -103,6 +107,7 @@ for time = 1:slot
                     if isequal(H_receive, T_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
                         valid = valid + 1;
+                        hrecive=[hrecive,time];
                     else
                         error = error + 1;
                     end
@@ -119,9 +124,11 @@ for time = 1:slot
                 % 如果TB非空就发TB
                 cache_C3 = BPSK(SNR, TB_T4);
                 PB_C3 = XOR(PB_C3, cache_C3);
+                tsend=[tsend,time];
             else
                 cache_C3 =  BPSK(SNR, PB_T4(1, :));
                 PB_C3 = XOR(PB_C3, cache_C3);
+                tsend=[tsend,time];
             end
         case 0
             %% 节点B2发送
@@ -139,17 +146,17 @@ for time = 1:slot
     valid_throughput(time) = valid / time;  % 有效吞吐量
 end
 FER = error ./ output;
-% h=length(hrecive);0
-% t=length(trecive);
-% hsend=hsend(:,2:t);
-% hrecive=hrecive(:,2:h);
-% tsend=tsend(:,2:h);
-% trecive=trecive(:,2:t);
-% delay=[trecive-hsend,hrecive-tsend];
-% delay=mean(delay(:))+1;
+h=length(hrecive);
+t=length(trecive);
+hsend=hsend(:,2:t);
+hrecive=hrecive(:,2:h);
+tsend=tsend(:,2:h);
+trecive=trecive(:,2:t);
+delay=[trecive-hsend,hrecive-tsend];
+delay=mean(delay(:))+1;
 
-figure, hold on;
-plot(throughput, 'r');
-plot(valid_throughput, 'b');
-xlabel('timeslot'), ylabel('throughput');
+% figure, hold on;
+% plot(throughput, 'r');
+% plot(valid_throughput, 'b');
+% xlabel('timeslot'), ylabel('throughput');
 end

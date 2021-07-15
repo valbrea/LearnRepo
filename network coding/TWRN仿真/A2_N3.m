@@ -3,7 +3,7 @@ function [] = A2_N3(SNR, slot)
 % 输入为SNR_dB和总的仿真时隙数
 n = 3;
 % 数据包大小
-data_bits=10;
+data_bits=8472;
 % 每个节点的初始数据为空
 % PB
 PB_A1 = zeros(2, data_bits);
@@ -126,6 +126,7 @@ for time = 1:slot
                 % (5.2) 如果非空就递交上层判断
                 % 在 n + 1时刻以后T节点才会收到包
                 if ~isequal(T_receive, empty) && (state_C3 == 0 || state_C3 == 2) && (flag_C3 == 0 || flag_C3 == 2)
+                   % if ~isequal(T_receive, empty)
                     output = output + 1;
                     if isequal(T_receive, H_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致
@@ -188,6 +189,7 @@ for time = 1:slot
                 % (5.2) 如果非空就递交上层判断
                 % 在Tr = 2n + mod(n + 1, 3) + 1开始，H0节点才开始收到包，前面收到的都是回传信息
                 if ~isequal(H_receive, empty) && (flag_A1 == 0 || flag_A1 == 1)
+                 %   if ~isequal(H_receive, empty)
                     output = output + 1;
                     if isequal(H_receive, T_sent(1, :))
                         % 判断n时刻前发的包是否和收到的包一致

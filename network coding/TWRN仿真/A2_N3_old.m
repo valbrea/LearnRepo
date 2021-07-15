@@ -1,6 +1,6 @@
-function [ throughput] = Network5 (SNR, slot)
+function [valid_throughput, FER, delay] = A2_N3_old (SNR, slot)
 %数据包大小
-data_bits=100;
+data_bits=8742;
 %每个节点的初始数据为空
 AR=zeros(1,data_bits);
 BR=zeros(1,data_bits);
@@ -10,7 +10,7 @@ TR=zeros(1,data_bits);
 H2T=zeros(1,data_bits);
 T2H=zeros(1,data_bits);
 %其余数据
-output=0;
+
 empty=zeros(1,data_bits);
 prate=11*10^6; %物理链路层速率
 T=data_bits/prate; %发送一次数据包所需时间
@@ -25,15 +25,19 @@ Btrans=0;
 Ctrans=0;
 Ttrans=0;
 %接收标志
+RH=1;
 RA=1;LA=0;
 RB=0;LB=0;
 RC=1;LC=1;
-RH=1;LT=0;
+LT=0;
 hsend=0;
 tsend=0;
 hrecive=0;
 trecive=0;
-
+output=0;
+valid = 0;
+error = 0;
+FER = 0;
 for time=1:slot
     type=mod(time,3);
     switch type
@@ -207,8 +211,10 @@ for time=1:slot
                     RC=RC-1;
                     TR=xor(CR,T2H);
                     if ~isequal(TR,empty)&&~isequal(CR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         trecive=[trecive,time];
+                    else
+                        error = error + 1;
                     end
                     LT=LT+1;
                 end
@@ -219,8 +225,10 @@ for time=1:slot
                     RC=RC-1;LC=LC-1;
                     TR=xor(CR,T2H);
                     if ~isequal(TR,empty)&&~isequal(CR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         trecive=[trecive,time];
+                        else
+                        error = error + 1;
                     end
                     if Btrans==0
                         BR=xor(xor(CR,BR),Btemp);
@@ -233,8 +241,10 @@ for time=1:slot
                     RC=RC-1;
                     TR=xor(CR,T2H);
                     if ~isequal(TR,empty)&&~isequal(CR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         trecive=[trecive,time];
+                        else
+                        error = error + 1;
                     end
                     LT=LT+1;
                 elseif Ctrans==2
@@ -254,8 +264,10 @@ for time=1:slot
                     RC=RC-1;LC=LC-1;
                     TR=xor(CR,T2H);
                     if ~isequal(TR,empty)&&~isequal(CR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         trecive=[trecive,time];
+                        else
+                        error = error + 1;
                     end
                     if Btrans==0
                         BR=xor(xor(CR,BR),Btemp);
@@ -268,8 +280,10 @@ for time=1:slot
                     RC=RC-1;
                     TR=xor(CR,T2H);
                     if ~isequal(TR,empty)&&~isequal(CR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         trecive=[trecive,time];
+                        else
+                        error = error + 1;
                     end
                     LT=LT+1;
                 elseif Ctrans==2
@@ -292,8 +306,10 @@ for time=1:slot
                     LA=LA-1;
                     HR=xor(AR,H2T);
                     if ~isequal(HR,empty)&&~isequal(AR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         hrecive=[hrecive,time];
+                        else
+                        error = error + 1;
                     end
                     RH=RH+1;
                 end
@@ -317,8 +333,10 @@ for time=1:slot
                     RA=RA-1;LA=LA-1;
                     HR=xor(AR,H2T);
                     if ~isequal(HR,empty)&&~isequal(AR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         hrecive=[hrecive,time];
+                        else
+                        error = error + 1;
                     end
                     if Btrans==0
                         BR=xor(xor(AR,BR),Btemp);
@@ -340,8 +358,10 @@ for time=1:slot
                     LA=LA-1;
                     HR=xor(AR,H2T);
                     if ~isequal(HR,empty)&&~isequal(AR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         hrecive=[hrecive,time];
+                        else
+                        error = error + 1;
                     end
                     RH=RH+1;
                 end
@@ -352,8 +372,10 @@ for time=1:slot
                     RA=RA-1;LA=LA-1;
                     HR=xor(AR,H2T);
                     if ~isequal(HR,empty)&&~isequal(AR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         hrecive=[hrecive,time];
+                        else
+                        error = error + 1;
                     end
                     if Btrans==0
                         BR=xor(xor(AR,BR),Btemp);
@@ -375,8 +397,10 @@ for time=1:slot
                     LA=LA-1;
                     HR=xor(AR,H2T);
                     if ~isequal(HR,empty)&&~isequal(AR,empty)
-                        output=output+1;
+                        valid=valid+1;
                         hrecive=[hrecive,time];
+                        else
+                        error = error + 1;
                     end
                     RH=RH+1;
                 end
@@ -416,8 +440,12 @@ for time=1:slot
                 end
             end  
     end
-    throughput(time) = output/time;
+    throughput(time) = output / time; % 吞吐量
+    valid_throughput(time) = valid/time;
 end
+output = valid + error;
+FER = error ./ output;
+% 计算时延
 h=length(hrecive);
 t=length(trecive);
 hsend=hsend(:,2:t);
@@ -428,8 +456,8 @@ delay=[trecive-hsend,hrecive-tsend];
 delay=mean(delay(:))+1;
 
 
-figure, hold on;
-plot(throughput, 'r');
+%figure, hold on;
+%plot(throughput, 'r');
 % plot(valid_throughput, 'b');
-xlabel('timeslot'), ylabel('throughput');
+%xlabel('timeslot'), ylabel('throughput');
 end

@@ -1,4 +1,4 @@
-function [throughput] = SNC3(SNR, slot)
+function [valid_throughput, FER, delay] = SNC3(SNR, slot)
 data_bits=8472;
 %初始化
 X_1=randi([0,1],1,data_bits);
@@ -173,9 +173,11 @@ for time=1:slot %仿真时间
                 end
             end        
     end
-    throughput(time) = output/(time+7);
+    valid_throughput(time) = output/(time+7);
+    % valid_throughput(time) = output/time;
 end
-
+FER = 0;
+% FER = error ./ output;
 number=length(tend);
 tbegin=tbegin(:,1:number);
 delay=tend-tbegin;
