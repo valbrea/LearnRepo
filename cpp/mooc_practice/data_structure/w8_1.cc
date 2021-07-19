@@ -87,46 +87,137 @@ XueYiXiaoBaiFang->(35)->XueYiShiTang->(80)->CanYinZhongXin->(60)->GongHangQuKuan
 
 using namespace std;
 typedef long long ll;
-class Graph {
-  public:
-  string name_;
-  int VerticesNum() {return }
-};
+
+enum { kUnvisited, kVisited } Vstatus;
+map<string, int> vertex;
+
 class Edge {
 public:
-  int from_, to_, weight_;
-  Edge(): from_(-1), to_(-1), weight_(0) {}
-  Edge(int f, int t, int w): from_(f), to_(t), weight_(w) {}
+  int from_, to_;
+  int weight_;
+  Edge() : from_(-1), to_(-1), weight_(0) {}
+  Edge(int from, int to, int weight) : from_(from), to_(to), weight_(weight) {}
+  void SetEdge(int from, int to, int weight) {
+    from_ = from;
+    to_ = to;
+    weight_ = weight;
+    return;
+  }
+} *edge;
+
+class Graph {
+  // *图的ADT
+public:
+  int num_vertex_;
+  int num_edge_;
+  int *mark_; // 顶点访问标记
+  int *indegree_;
+  int *outdegree_;
+
+  int VerticesNum() { return num_vertex_; }
+  int EdgesNum() { return num_edge_; }
+  Edge FirstEdge(int one_vertex) {
+    for (int i(0); i < EdgesNum(); ++i) {
+      if (edge[i].from_ == one_vertex) {
+        return edge[i];
+      }
+    }
+  }
+  Edge NextEdge(Edge pre_edge);
+  bool Isedge(Edge one_edge);
+  bool SetEdge(int from_vertex, int to_vertex, int weight);
+  bool DelEdge(int from_vertex, int to_vertex);
+  int FromVertex(Edge one_edge) { return one_edge.from_; }
+  int ToVertex(Edge one_edge) { return one_edge.to_; }
+  int Weight(Edge one_edge) { return one_edge.weight_; }
+} graph;
+
+class Dist {
+public:
+  int index_;  // 顶点索引
+  int length_; // 最短路长度
+  int pre_;    // 最后经过的顶点
+  bool operator<(Dist &d2) { return length_ < d2.length_; }
+  Dist() : index_(-1), length_(0), pre_(-1) {}
+  Dist(int l) : index_(-1), length_(l), pre_(-1) {}
 };
+void Dijkstra(Graph &g, int s, Dist *&min_d) {
+  min_d = new Dist[g.VerticesNum()]; // 记录当前最短路径长度
+  for (int i = 0; i < g.VerticesNum(); ++i) {
+    // 初始化
+    g.mark_[i] = kUnvisited;
+    min_d[i].index_ = i;
+    min_d[i].length_ = INF;
+    min_d[i].pre_ = s;
+  }
+  min_d[s].length_ = 0;
+  priority_queue<Dist> minheap;
+  minheap.push(min_d[s]);
+
+  for (int i(0); i < g.VerticesNum(); ++i) {
+    bool found = false;
+    Dist d;
+    while (!minheap.empty()) {
+      d = minheap.top();
+      minheap.pop();
+      if (g.mark_[d.index_] == kUnvisited) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) // 有不可达点就跳出循环
+      break;
+    int v = d.index_;
+    g.mark_[v] = kVisited;
+    for(Edge e = g.FirstEdge(v); g.Isedge(e); e = g.NextEdge(e)){
+      if (min_d[g.ToVertex(e)].length_ > (min_d->length_ + g.Weight(e))) {
+        min_d[g.ToVertex(e)].length_ = min_d[v].length_ + g.Weight(e);
+        min_d[g.ToVertex(e)].pre_ = v;
+        minheap.push(min_d[g.ToVertex(e)]);
+      }
+    }
+  }
+}
 int main() {
 #ifdef LOCAL
   freopen(".debug/w8_1.in", "r", stdin);
 #endif
 
   int p, q, r;
-  string stemp;
+  string str1, str2;
   cin >> p;
   cin.ignore();
-  map<string, int> vertex;
-  while(p--) {
-    getline(cin, stemp);
-    vertex.insert(make_pair(stemp, 1));
-    
+  graph.num_vertex_ = p;
+  for (int i = 0; i < p; ++i) {
+    getline(cin, str1);
+    vertex.insert(make_pair(str1, i));
   }
+ 
+
   cin >> q;
   cin.ignore();
-  while(q--) {
-
+  graph.num_edge_ = q;
+  edge = new Edge[q];
+  int temp_w;
+  for (int i = 0; i < q; ++i) {
+    cin >> str1 >> str2 >> temp_w;
+    cin.ignore();
+    edge[i].SetEdge(vertex[str1], vertex[str2], temp_w);
   }
+
   cin >> r;
   cin.ignore();
-  while(r--) {
-
+  string *start = new string[r];
+  string *end = new string[r];
+  for (int i = 0; i < r; ++i) {
+    cin >> str1 >> str2;
+    cin.ignore();
+    start[i] = str1;
+    end[i] = str2;
   }
-  
 
 #ifdef LOCAL
-  cout << endl 
+  cout << endl
        << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
 #endif
 
