@@ -64,7 +64,7 @@ GongHangQuKuanJi GongHangQuKuanJi
 样例输出
 XueYiXiaoBaiFang->(35)->XueYiShiTang->(80)->CanYinZhongXin->(60)->GongHangQuKuanJi->(35)->BaiNianJiangTangGongHangQuKuanJi
 */
-#define LOCAL // 本地调试宏定义，提交代码时注释掉此行
+// #define LOCAL // 本地调试宏定义，提交代码时注释掉此行
 #define STL   // STL库，不用时注释掉此行
 #define INF 0x3f3f3f3f
 #define INF_LL 0x3f3f3f3f3f3f3f3f
@@ -88,95 +88,85 @@ XueYiXiaoBaiFang->(35)->XueYiShiTang->(80)->CanYinZhongXin->(60)->GongHangQuKuan
 using namespace std;
 typedef long long ll;
 
-enum { kUnvisited, kVisited } Vstatus;
-map<string, int> vertex;
+enum { kUnvisited, kVisited };
+map<string, int> name_index;
+map<int, string> index_name;
 
-class Edge {
-public:
-  int from_, to_;
-  int weight_;
-  Edge() : from_(-1), to_(-1), weight_(0) {}
-  Edge(int from, int to, int weight) : from_(from), to_(to), weight_(weight) {}
-  void SetEdge(int from, int to, int weight) {
-    from_ = from;
-    to_ = to;
-    weight_ = weight;
-    return;
-  }
-} *edge;
-
-class Graph {
-  // *图的ADT
-public:
-  int num_vertex_;
-  int num_edge_;
-  int *mark_; // 顶点访问标记
-  int *indegree_;
-  int *outdegree_;
-
-  int VerticesNum() { return num_vertex_; }
-  int EdgesNum() { return num_edge_; }
-  Edge FirstEdge(int one_vertex) {
-    for (int i(0); i < EdgesNum(); ++i) {
-      if (edge[i].from_ == one_vertex) {
-        return edge[i];
-      }
-    }
-  }
-  Edge NextEdge(Edge pre_edge);
-  bool Isedge(Edge one_edge);
-  bool SetEdge(int from_vertex, int to_vertex, int weight);
-  bool DelEdge(int from_vertex, int to_vertex);
-  int FromVertex(Edge one_edge) { return one_edge.from_; }
-  int ToVertex(Edge one_edge) { return one_edge.to_; }
-  int Weight(Edge one_edge) { return one_edge.weight_; }
-} graph;
-
-class Dist {
-public:
+struct Dist {  // 最短路信息
   int index_;  // 顶点索引
   int length_; // 最短路长度
   int pre_;    // 最后经过的顶点
-  bool operator<(Dist &d2) { return length_ < d2.length_; }
   Dist() : index_(-1), length_(0), pre_(-1) {}
   Dist(int l) : index_(-1), length_(l), pre_(-1) {}
-};
-void Dijkstra(Graph &g, int s, Dist *&min_d) {
-  min_d = new Dist[g.VerticesNum()]; // 记录当前最短路径长度
-  for (int i = 0; i < g.VerticesNum(); ++i) {
-    // 初始化
-    g.mark_[i] = kUnvisited;
-    min_d[i].index_ = i;
-    min_d[i].length_ = INF;
-    min_d[i].pre_ = s;
+  friend bool operator<(const Dist d1, const Dist &d2) {
+    return d1.length_ < d2.length_;
   }
-  min_d[s].length_ = 0;
+  // 要用到堆排序所以需要重载<
+};
+void Dijkstra(vector<vector<int> > &weight, int start, Dist *&min) {
+  int n = weight.size();
+  min = new Dist[n]; // 记录当前最短路径长度, 长度为n的对象数组
+  int *mark = new int[n]; // 标记顶点是否被访问
+  for (int i = 0; i < n; ++i) {
+    // 初始化
+    mark[i] = kUnvisited;
+    min[i].index_ = i;
+    min[i].length_ = INF;
+    min[i].pre_ = start;
+  }
+  min[start].length_ = 0;
   priority_queue<Dist> minheap;
-  minheap.push(min_d[s]);
-
-  for (int i(0); i < g.VerticesNum(); ++i) {
+  minheap.push(min[start]);
+  for (int i(0); i < n; ++i) {
     bool found = false;
     Dist d;
-    while (!minheap.empty()) {
+    while (!minheap.empty()) { // 如果非空就取出最小的路径长度信息
       d = minheap.top();
       minheap.pop();
-      if (g.mark_[d.index_] == kUnvisited) {
+      if (mark[d.index_] == kUnvisited) {
+        // 找到路径长度最小的节点，没访问过就跳出循环
         found = true;
         break;
       }
     }
-    if (!found) // 有不可达点就跳出循环
+    // 如果没有符合条件的最短路径信息，就跳出本次循环
+    if (!found) // 或者到了终点也要跳出循环
       break;
     int v = d.index_;
-    g.mark_[v] = kVisited;
-    for(Edge e = g.FirstEdge(v); g.Isedge(e); e = g.NextEdge(e)){
-      if (min_d[g.ToVertex(e)].length_ > (min_d->length_ + g.Weight(e))) {
-        min_d[g.ToVertex(e)].length_ = min_d[v].length_ + g.Weight(e);
-        min_d[g.ToVertex(e)].pre_ = v;
-        minheap.push(min_d[g.ToVertex(e)]);
+    mark[v] = kVisited;
+    // 把这个节点v加入到第一组
+    // 对于v的所有相邻点j
+    for (int j = 0; j < n; ++j) {
+      if ((min[v].length_ + weight[v][j]) < min[j].length_) {
+        // 更新所有v到j的路径长度
+        min[j].length_ = min[v].length_ + weight[v][j];
+        min[j].pre_ = v;
+        minheap.push(min[j]);
       }
     }
   }
+  // 处理完以后，min里面就保存好了所有数据
+}
+void ShowPath(vector<vector<int> > &weight, Dist *&ans, int end) {
+  // if (end == ans[end].pre_) {
+  //   cout << index_name[end] << "->(0)->" << index_name[end] << endl;
+  //   return;
+  // }
+  stack<int> path;
+  while (end != ans[end].pre_) {
+    path.push(ans[end].index_);
+    end = ans[end].pre_;
+  }
+  int i = end;
+  
+  cout << index_name[i];
+  while (!path.empty()) {
+    int j = path.top();
+    path.pop();
+    cout << "->(" << weight[i][j] << ")->" << index_name[j];
+    i = j;
+  }
+  cout << endl;
 }
 int main() {
 #ifdef LOCAL
@@ -187,33 +177,46 @@ int main() {
   string str1, str2;
   cin >> p;
   cin.ignore();
-  graph.num_vertex_ = p;
   for (int i = 0; i < p; ++i) {
     getline(cin, str1);
-    vertex.insert(make_pair(str1, i));
+    name_index.insert(make_pair(str1, i));
+    index_name.insert(make_pair(i, str1));
   }
- 
 
+  // 初始化邻接矩阵为INF;
+  vector<vector<int> > weight(p, vector<int>(p, INF));
+  for (int i(0); i < p; ++i) {
+    weight[i][i] = 0; // 对角线是0,自己到自己的距离是0
+  }
   cin >> q;
   cin.ignore();
-  graph.num_edge_ = q;
-  edge = new Edge[q];
   int temp_w;
   for (int i = 0; i < q; ++i) {
     cin >> str1 >> str2 >> temp_w;
     cin.ignore();
-    edge[i].SetEdge(vertex[str1], vertex[str2], temp_w);
+    if (str1 != str2) { // 防止自环
+    int a = name_index[str1];
+    int b = name_index[str2];
+    if (temp_w < weight[a][b]) // 可能有重边，取权值最小的
+      weight[a][b] = weight[b][a] = temp_w; 
+    }
   }
 
   cin >> r;
   cin.ignore();
-  string *start = new string[r];
-  string *end = new string[r];
+  int *start = new int[r];
+  int *end = new int[r];
   for (int i = 0; i < r; ++i) {
     cin >> str1 >> str2;
     cin.ignore();
-    start[i] = str1;
-    end[i] = str2;
+    start[i] = name_index[str1];
+    end[i] = name_index[str2];
+  }
+
+  for (int i = 0; i < r; ++i) {
+    Dist *ans;
+    Dijkstra(weight, start[i], ans);
+    ShowPath(weight, ans, end[i]);
   }
 
 #ifdef LOCAL
