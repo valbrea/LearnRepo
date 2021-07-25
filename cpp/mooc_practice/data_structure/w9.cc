@@ -22,6 +22,18 @@
 using namespace std;
 typedef long long ll;
 
+void test(int &sum) {
+  int x;
+  scanf(x);
+  if (x == 0)
+    test(sum);
+  sum = 0;
+  else {
+    test(sum);
+    sum += x;
+  }
+  printf(sum);
+}
 int main() {
 #ifdef LOCAL
   freopen(".debug/data.in", "r", stdin);
