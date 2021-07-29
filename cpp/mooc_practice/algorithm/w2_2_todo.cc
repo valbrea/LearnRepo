@@ -78,21 +78,29 @@ typedef long long ll;
 const int INF = 0x3f3f3f3f;
 const ll INF_LL = 0x3f3f3f3f3f3f3f3f;
 
+typedef vector<vector<int>> matrix;
+typedef vector<int> row;
+
+v
 int main() {
 #ifdef LOCAL_DEBUG
   freopen("/home/asuka/linuxcodes/cpp/mooc_practice/algorithm/.debug/w2_2.in",
           "r", stdin);
 #endif
 
-  vector<int> clocks(9, 0);
-  vector<vector<int>> move = {{0, 1, 3, 4}, {0, 1, 2},       {1, 2, 4, 5},
-                              {0, 3, 6},    {1, 3, 4, 5, 7}, {2, 5, 8},
-                              {3, 4, 6, 7}, {6, 7, 8},       {4, 5, 7, 8}};
+  row clocks(9, 0);
+  // matrix move = {{0, 1, 3, 4}, {0, 1, 2},       {1, 2, 4, 5},
+  //                {0, 3, 6},    {1, 3, 4, 5, 7}, {2, 5, 8},
+  //                {3, 4, 6, 7}, {6, 7, 8},       {4, 5, 7, 8}};
+
+  // 输入时钟起始状态
   for (int i(0); i < 9; ++i)
     cin >> clocks[i];
+  // !思路：https://blog.csdn.net/hejnhong/article/details/104448861
 
 #ifdef LOCAL_DEBUG
-  cout << endl << "-------------------------------------------------" << endl
+  cout << endl
+       << "-------------------------------------------------" << endl
        << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
 #endif
   return 0;
