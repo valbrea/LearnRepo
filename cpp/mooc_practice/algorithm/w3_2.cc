@@ -92,7 +92,7 @@ file2
 #include <vector>
 #endif
 
-#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
+// #define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
 using namespace std;
 typedef long long ll;
 const int INF = 0x3f3f3f3f;
@@ -101,47 +101,49 @@ const ll INF_LL = 0x3f3f3f3f3f3f3f3f;
 string str;
 string prefix; // 前缀 "|        "
 void Directory(string root) {
+  cout << prefix << root << endl;
   set<string> files;
+  str.clear();
   while (str != "*") {
     getline(cin, str);
     switch (str[0]) {
     case 'd':
-      prefix += "|        ";
+      prefix += "|     ";
       Directory(str);
       break;
     case 'f':
       files.insert(str);
       break;
     case ']':
-      cout << prefix << root << endl;
       for (set<string>::iterator ii = files.begin(); ii != files.end(); ++ii) {
         cout << prefix << *ii << endl;
       }
-      prefix -= "|        ";
+      prefix = prefix.substr(6);
       return;
-      break;
     case '*':
-      cout << prefix << root << endl;
       for (set<string>::iterator ii = files.begin(); ii != files.end(); ++ii) {
         cout << prefix << *ii << endl;
       }
-      prefix -= "|        ";
       return;
-      break;
     default:
-      break;
+    // 输入为'#'的时候
+      return;
     }
   }
 }
 int main() {
 #ifdef LOCAL_DEBUG
-  freopen("/home/asuka/linuxcodes/cpp/mooc_practice/algorithm/.debug/w3_2.in",
-          "r", stdin);
+  freopen("algorithm/.debug/w3_2.in", "r", stdin);
 #endif
 
   int data_num(1);
-  while (str != "#") {
+  char c;
+  while (cin >> c && c != '#') {
+    cin.putback(c);
+    cout << "DATA SET " << data_num << ":" << endl;
     Directory("ROOT");
+    cout << endl;
+    ++data_num;
   }
 
 #ifdef LOCAL_DEBUG
