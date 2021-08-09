@@ -55,7 +55,7 @@ k，用一个空格隔开，表示了将在一个n*n的矩阵内描述棋盘，�
 #include <vector>
 #endif
 
-#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
+// #define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
 using namespace std;
 typedef long long ll;
 const int INF = 0x3f3f3f3f;
@@ -68,24 +68,24 @@ int visited[max_n]; // 标记哪一列放了棋子
 ll ans = 0;
 
 
-void Dfs(int row, int k) {
+void Dfs(int row, int kk) {
   // 按行搜索
-  if (k == 0) {
+  if (kk == 0) {
     // 棋子用完，方案数++
     ++ans;
     return;
   }
   // 因为要计算所有的可行方案，所以第一个棋子应该每一行都放一遍
   for (int i(row); i < n; ++i) {
-    // 从剩下的哪一行开始放
+    //! 从剩下的哪一行开始放，这里没和6_1.cc一样用递归而是直接用的迭代，本质一样
     for (int j(0); j < n; ++j) {
       // 对该行的所有可行位置，放一个棋子
       if (board[i][j] == '#' && !visited[j]) {
         // 如果是可以棋子的位置，且这一列没有放过棋子
         visited[j] = 1;
-        --k;
-        Dfs(i + 1, k); // 放下一行的棋子
-        ++k;
+        --kk;
+        Dfs(i + 1, kk); // 放下一行的棋子
+        ++kk;
         visited[j] = 0;
       }
     }

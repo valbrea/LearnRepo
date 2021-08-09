@@ -63,7 +63,8 @@ const ll INF_LL = 0x3f3f3f3f3f3f3f3f;
 
 const int max_n = 8;
 int n, k;
-char board[max_n][max_n];
+char board[max_n][max_n + 1]; 
+//! 这里列数一定要max_n + 1，因为cin.getline()录入的最后要放个终止字符
 int visited[max_n]; // 标记哪一列放了棋子
 ll ans = 0;
 void Dfs(int row) {
@@ -97,6 +98,7 @@ int main() {
 #endif
 
   while (cin >> n >> k && n > 0 && k > 0) {
+    cin.ignore();
     cin.ignore();
     memset(visited, 0, sizeof(visited)); // 每次清空一下visited
     for (int i(0); i < n; ++i)
