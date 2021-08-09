@@ -58,7 +58,7 @@ can be achieved given the weight constraints
 #include <vector>
 #endif
 
-#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
+// #define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
 using namespace std;
 typedef long long ll;
 const int INF = 0x3f3f3f3f;
@@ -81,8 +81,8 @@ int main() {
 
   int n, m;
   cin >> n >> m;
-  int *s = new int[n + 1];
-  memset(s, 0, (n + 1) * sizeof(s));
+  int *s = new int[m + 1];
+  memset(s, 0, (m + 1) * sizeof(s));
   cin.ignore();
   int wi, di;
   // s(i, j) 表示有前i个charm时，重量上限为j的最高价值d_sum
