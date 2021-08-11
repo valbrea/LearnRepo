@@ -134,3 +134,119 @@ rejected
 103 86 2 15 0
 rejected
 */
+#define STL // STL库，不用时注释掉此行
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <iostream>
+#include <string>
+#ifdef STL
+#include <algorithm>
+#include <deque>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+#include <stack>
+#include <vector>
+#endif
+
+#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
+using namespace std;
+typedef long long ll;
+const int INF = 0x3f3f3f3f;
+const ll INF_LL = 0x3f3f3f3f3f3f3f3f;
+
+int max_sum = 0, max2_sum = 0;
+vector<int> part; // 用来存放最后的各个部分
+inline int Digit(int n) {
+  // 求一个数字有几位数
+  int i = 1;
+  while (n /= 10)
+    ++i;
+  return i;
+}
+void Shred(int left, int n, int sum) {
+  // DFS+剪枝, left为剩余目标和，n是现在的数字，sum是目前的和
+  // x位的数字可以有x-1个分割点，最多6位数字，x = 1, 2, 3, 4, 5, 6
+  // 分割点cut = 1, 2, 3, 4 如果第i位数字是0，则i-1分割点无效
+  // cut = 0的时候就不分割，这时候直接计算n + sum 是否 < left
+  // 分割点从1位置开始，最多到x-1,递归进行,考虑sum = 分割点前面的数字
+  // 只让分割点后面的数字进入下一次递归（因为如果前面的sum过大需要分割的话，和前面就重复了）;
+
+  if (left < 0 || n == 0)
+    // 终止条件: 如果left < 0。或者n == 0，则直接回退
+    return;
+  if (n <= left) {
+    // 剪枝1: 如果n <= left 就不需要再分割了
+    part.push_back(n);
+    sum += n;
+    Shred(left - n, 0, sum);
+    sum -= n;
+    part.pop_back();
+  } else {
+    // 如果不是则需要分割
+    int x = Digit(n), y = Digit(left);
+    int times = (int)pow(10, x);
+    for (int cut = 1; cut <= min(x - 1, y); ++cut) {
+      // 剪枝2，如果目标t是y位的数字，且y < x
+      // 那么分割点前面的部分应该小于等于y位，即cut <= y
+      // 同时cut <= x - 1，所以 cut
+      times /= 10;
+      int front = n / times;        // 分割点前面的数字
+      int back = n - front * times; // 分割点后面的数字
+      if (back != 0 && Digit(back) == x - cut) {
+        // 剪枝3，如果分割点后面的首位数字是0，则跳过
+        // 可能出现back = 0, Digit(0) == 1 != x(1) - cut(1) == 0，直接跳过
+        part.push_back(front);
+        sum += front;
+        Shred(left - front, back, sum);
+        sum -= front;
+        part.pop_back();
+      }
+    }
+  }
+  // 如果找完所有分割点还没有找到满足的条件，例如输入1 99
+  // 利用sum更新max_sum，如果sum == max_sum 就存到max2_sum里面
+  if (sum > max_sum)
+    // todo 如何sum最大的时候在vector保存的各个part，且
+    max_sum = sum;
+  else if (sum == max_sum)
+    max2_sum = sum;
+  return;
+}
+int main() {
+#ifdef LOCAL_DEBUG
+  freopen("algorithm/.debug/w7_1.in", "r", stdin);
+#endif
+
+  int target, num; // 输入目标和数字
+  while (cin >> target >> num && target > 0 && num > 0) {
+    int sum = 0;
+    if (!part.empty())
+      part.clear();
+    Shred(target, num, sum);
+    if (max_sum > max2_sum) {
+      cout << max_sum << " ";
+      for (int i(0); i < part.size() - 1; ++i)
+        cout << part[i] << " ";
+      cout << *(part.end() - 1) << endl;
+    } else if (max_sum == max2_sum) {
+      if (max_sum == 0)
+        cout << "error" << endl;
+      else
+        // 如果有0 < max2_sum = max_xum <= left, 输出rejected
+        cout << "rejected" << endl;
+    }
+    cout << endl;
+  }
+
+#ifdef LOCAL_DEBUG
+  cout << endl
+       << "-------------------------------------------------" << endl
+       << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
+#endif
+  return 0;
+}
