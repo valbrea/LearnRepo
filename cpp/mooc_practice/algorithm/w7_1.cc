@@ -153,14 +153,15 @@ rejected
 #include <vector>
 #endif
 
-#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
+// #define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
 using namespace std;
 typedef long long ll;
 const int INF = 0x3f3f3f3f;
 const ll INF_LL = 0x3f3f3f3f3f3f3f3f;
 
 int max_sum = 0, max2_sum = 0;
-vector<int> part; // 用来存放最后的各个部分
+vector<int> part;     // 用来存放当前组合的各个分割部分
+vector<int> max_part; // 存放sum最大的组合
 inline int Digit(int n) {
   // 求一个数字有几位数
   int i = 1;
@@ -176,16 +177,22 @@ void Shred(int left, int n, int sum) {
   // 分割点从1位置开始，最多到x-1,递归进行,考虑sum = 分割点前面的数字
   // 只让分割点后面的数字进入下一次递归（因为如果前面的sum过大需要分割的话，和前面就重复了）;
 
-  if (left < 0 || n == 0)
-    // 终止条件: 如果left < 0。或者n == 0，则直接回退
+  if (left < 0)
+    // 终止条件: 如果left < 0，则直接回退
     return;
   if (n <= left) {
     // 剪枝1: 如果n <= left 就不需要再分割了
     part.push_back(n);
     sum += n;
-    Shred(left - n, 0, sum);
-    sum -= n;
+    if (sum > max_sum) {
+      max_sum = sum;
+      max_part = part;
+    } else if (sum == max_sum)
+      max2_sum = sum;
+    // 回溯
     part.pop_back();
+    sum -= n;
+    return;
   } else {
     // 如果不是则需要分割
     int x = Digit(n), y = Digit(left);
@@ -197,42 +204,56 @@ void Shred(int left, int n, int sum) {
       times /= 10;
       int front = n / times;        // 分割点前面的数字
       int back = n - front * times; // 分割点后面的数字
-      if (back != 0 && Digit(back) == x - cut) {
-        // 剪枝3，如果分割点后面的首位数字是0，则跳过
-        // 可能出现back = 0, Digit(0) == 1 != x(1) - cut(1) == 0，直接跳过
+      if (Digit(back) == x - cut) {
+        // 如果分割点后面的首位数字不是0
         part.push_back(front);
         sum += front;
         Shred(left - front, back, sum);
         sum -= front;
         part.pop_back();
+      } else {
+        //! 由输入数据6 1104 -> rejected 而不是error可以看出
+        //! 切割后的数字可以有前导0，这时候 1|1|04和 1|1|0|4一样了
+        //! 草！用int做的话，没法区分这两种情况！！！
+        //! 如果有多个前导0的话，情况更多！！！
+        //* 但是sum的值其实并不可能因为前导0的存在有任何差别
+        //* 所以干脆直接重复搜索一次，如果sum够大的话，让max2_sum也记录上
+        //* 这样输出的时候就是reject而非error，哈哈老子真是天才！
+        part.push_back(front);
+        sum += front;
+        Shred(left - front, back, sum);
+        Shred(left - front, back, sum);
+        sum -= front;
+        part.pop_back();
       }
     }
+    // 如果找完所有分割点还没有找到满足的条件，例如输入1 99
+    return;
   }
-  // 如果找完所有分割点还没有找到满足的条件，例如输入1 99
-  // 利用sum更新max_sum，如果sum == max_sum 就存到max2_sum里面
-  if (sum > max_sum)
-    // todo 如何sum最大的时候在vector保存的各个part，且
-    max_sum = sum;
-  else if (sum == max_sum)
-    max2_sum = sum;
-  return;
 }
 int main() {
 #ifdef LOCAL_DEBUG
   freopen("algorithm/.debug/w7_1.in", "r", stdin);
 #endif
 
+  //! 测试数据如果超过了6位数  不能用int做 要用字符串
   int target, num; // 输入目标和数字
+  int sum;
   while (cin >> target >> num && target > 0 && num > 0) {
-    int sum = 0;
+    // 每轮清空
+    sum = max_sum = max2_sum = 0;
     if (!part.empty())
       part.clear();
+    if (!max_part.empty())
+      max_part.clear();
+    // DFS
     Shred(target, num, sum);
+    // 输出
     if (max_sum > max2_sum) {
       cout << max_sum << " ";
-      for (int i(0); i < part.size() - 1; ++i)
-        cout << part[i] << " ";
-      cout << *(part.end() - 1) << endl;
+      for (int i(0); i < max_part.size() - 1; ++i)
+        cout << max_part[i] << " ";
+      cout << *(max_part.end() - 1) << endl;
     } else if (max_sum == max2_sum) {
       if (max_sum == 0)
         cout << "error" << endl;
@@ -240,7 +261,6 @@ int main() {
         // 如果有0 < max2_sum = max_xum <= left, 输出rejected
         cout << "rejected" << endl;
     }
-    cout << endl;
   }
 
 #ifdef LOCAL_DEBUG
