@@ -47,8 +47,7 @@
 #include <vector>
 #endif
 
-#define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
-
+// #define LOCAL_DEBUG // 本地调试宏定义，提交代码时注释掉此行
 using namespace std;
 typedef long long ll;
 const int INF = 0x3f3f3f3f;
@@ -68,23 +67,22 @@ int main() {
   freopen("data_structure_2/.debug/w3_1.in", "r", stdin);
 #endif
 
-  cin >> n >> k;
-  vector<Cow> cow;
+  std::cin >> n >> k;
+  std::vector<Cow> cow;
   int ai, bi;
   for (int i = 1; i <= n; ++i) {
-    cin >> ai >> bi;
+    std::cin >> ai >> bi;
     cow.push_back(Cow(i, ai, bi));
   }
   sort(cow.begin() + 1, cow.end(), GreaterA);
   sort(cow.begin() + 1, cow.begin() + k + 1, GreaterB);
-  
-  cout << cow[0].id_ << endl;
-}
+
+  std::cout << cow[1].id_ << std::endl;
 
 #ifdef LOCAL_DEBUG
-cout << endl
-     << "-------------------------------------------------" << endl
-     << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
+  cout << endl
+       << "-------------------------------------------------" << endl
+       << "Runtime: " << 1000.0 * (double)clock() / CLOCKS_PER_SEC << "ms\n";
 #endif
-return 0;
+  return 0;
 }
