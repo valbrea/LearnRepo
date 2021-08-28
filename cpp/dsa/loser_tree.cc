@@ -5,7 +5,6 @@
 * 因为对于有n-1个元素(内部节点)的完全二叉树，
 * 最底层内部节点个数是n − s，最低层外部节点的个数lowExt = 2 * ( n − s )
 * 令offset = 2 * s - 1即内部节点最底层最右端的节点编号。
-
 */
 const int MAX = 65535;
 template <class T> class LoserTree {
@@ -39,12 +38,16 @@ template <class T> void LoserTree<T>::Initialize(T a[], int size) {
   // 成员变量初始化
   n_ = size;
   player_ = a;
+  arena_ = new int[n_];
+
+  // 最底层最左端的内部节点其编号为s，且s = 2^⌊ log2( n − 1 ) ⌋
   int i, s; // s = 2^log(n - 1)
   for (s = 1; 2 * s <= n_ - 1; s += s)
     ; // 若有h层满二叉树的败者树，则一共有s = 2 ^ h = 1 + 1 + 2 + ... + h
       // 个节点（包括冠军节点） 这里数到了倒数第二层（low_ext_上一层）
   low_ext_ = 2 * (n_ - s);
   offset_ = 2 * s - 1;
+
   for (i = 2; i <= low_ext_; i += 2) // 底层外部相互比赛
     Play((offset_ + i) / 2, i - 1, i);
   if (n_ % 2) { // n是奇数，内部和外部比赛
